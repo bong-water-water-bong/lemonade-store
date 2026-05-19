@@ -14,9 +14,10 @@ third-party deps in the contracts package.
 from __future__ import annotations
 
 import tomllib
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from lemonade_store.departments import KNOWN_DEPARTMENTS
 
@@ -77,8 +78,7 @@ def load_store_config(path: str | Path) -> StoreConfig:
     barter = data["barter"]
     if barter not in _ALLOWED_BARTER:
         raise ConfigValidationError(
-            f"barter={barter!r} is not allowed in v0.1 "
-            f"(allowed: {sorted(_ALLOWED_BARTER)})"
+            f"barter={barter!r} is not allowed in v0.1 (allowed: {sorted(_ALLOWED_BARTER)})"
         )
 
     cloudflare = data["cloudflare"]
@@ -89,9 +89,7 @@ def load_store_config(path: str | Path) -> StoreConfig:
         )
 
     categories = data["categories"]
-    if not isinstance(categories, list) or not all(
-        isinstance(c, str) for c in categories
-    ):
+    if not isinstance(categories, list) or not all(isinstance(c, str) for c in categories):
         raise ConfigValidationError("categories must be a list of strings")
 
     return StoreConfig(
@@ -119,9 +117,7 @@ def load_departments_file(path: str | Path) -> tuple[str, ...]:
     """
     data = _read_toml(path)
     if "departments" not in data:
-        raise ConfigValidationError(
-            f"{Path(path).name} must define a `departments` array"
-        )
+        raise ConfigValidationError(f"{Path(path).name} must define a `departments` array")
     names = data["departments"]
     if not isinstance(names, list) or not all(isinstance(n, str) for n in names):
         raise ConfigValidationError("`departments` must be a list of strings")

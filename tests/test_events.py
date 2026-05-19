@@ -17,8 +17,8 @@ from lemonade_store.events import (
     Actor,
     Event,
     EventValidationError,
-    load_event,
     dump_event,
+    load_event,
 )
 
 

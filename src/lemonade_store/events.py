@@ -21,8 +21,9 @@ Design notes worth remembering:
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass, field
-from typing import Any, Mapping
+from typing import Any
 
 from lemonade_store.departments import KNOWN_DEPARTMENTS, registry
 
@@ -93,8 +94,7 @@ def _validate_event(event: Event) -> None:
         )
     if event.department not in KNOWN_DEPARTMENTS:
         raise EventValidationError(
-            f"unknown department {event.department!r}; "
-            f"expected one of {sorted(KNOWN_DEPARTMENTS)}"
+            f"unknown department {event.department!r}; expected one of {sorted(KNOWN_DEPARTMENTS)}"
         )
     if "." not in event.type:
         raise EventValidationError(
@@ -114,9 +114,7 @@ def _validate_event(event: Event) -> None:
             "requires_approval=True must be paired with a non-null approved_by"
         )
     if not event.requires_approval and event.approved_by is not None:
-        raise EventValidationError(
-            "approved_by must be null when requires_approval=False"
-        )
+        raise EventValidationError("approved_by must be null when requires_approval=False")
 
 
 def load_event(data: Mapping[str, Any]) -> Event:

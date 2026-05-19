@@ -20,7 +20,7 @@ Two field pairs do related-but-distinct work:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 KNOWN_DEPARTMENTS: frozenset[str] = frozenset(
     {

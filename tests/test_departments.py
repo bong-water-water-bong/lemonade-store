@@ -20,7 +20,6 @@ from lemonade_store.departments import (
     registry,
 )
 
-
 EXPECTED = {
     "cashier",
     "inventory",
@@ -48,8 +47,7 @@ class TestDepartmentInvariants:
         dept = registry()[name]
         for event_type in dept.emits:
             assert event_type.startswith(f"{dept.namespace}."), (
-                f"{name} emits {event_type!r}, "
-                f"which is not in its namespace {dept.namespace!r}"
+                f"{name} emits {event_type!r}, which is not in its namespace {dept.namespace!r}"
             )
 
     @pytest.mark.parametrize("name", sorted(EXPECTED))

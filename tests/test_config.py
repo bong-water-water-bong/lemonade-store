@@ -18,7 +18,6 @@ from lemonade_store.config import (
     load_store_config,
 )
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TIE_DYE_DIR = REPO_ROOT / "examples" / "tie-dye-farms"
 
