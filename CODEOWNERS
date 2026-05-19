@@ -1,0 +1,8 @@
+# Default owner for everything in this repo.
+*       @bong-water-water-bong
+
+# Contract files — extra eyes because changes ripple to every department repo.
+/src/lemonade_store/events.py        @bong-water-water-bong
+/src/lemonade_store/departments.py   @bong-water-water-bong
+/docs/EVENTS.md                      @bong-water-water-bong
+/docs/DEPARTMENTS.md                 @bong-water-water-bong
