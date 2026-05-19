@@ -68,6 +68,26 @@ def load_store_config(path: str | Path) -> StoreConfig:
             f"store config {Path(path).name} missing required keys: {missing}"
         )
 
+    # Every scalar required key must be a string. TOML can't natively
+    # produce a non-string for keys we declare as strings — but a
+    # hand-edited file can swap a value for a number / array / boolean,
+    # and we'd rather fail at load than ship that to a department repo.
+    for scalar in (
+        "store_id",
+        "business_name",
+        "suite",
+        "cashier_repo",
+        "website_repo",
+        "currency",
+        "payment_core",
+        "barter",
+        "cloudflare",
+    ):
+        if not isinstance(data[scalar], str):
+            raise ConfigValidationError(
+                f"{scalar} must be a string, got {type(data[scalar]).__name__}"
+            )
+
     payment_core = data["payment_core"]
     if payment_core not in _ALLOWED_PAYMENT_CORE:
         raise ConfigValidationError(

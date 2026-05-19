@@ -35,7 +35,7 @@ validator.
 | `type` | must be `namespace.action[.subaction]`; namespace must match the department's namespace, or be a shared meta namespace (`store.*`, `audit.*`) |
 | `source` | a human-meaningful producer ID (e.g. `lemonade-cashier`) |
 | `actor` | `{ "kind": "attendant" \| "agent_auto" \| "agent_confirmed" \| "supervisor" \| "owner" \| "system", "id": "..." }` |
-| `requires_approval` | boolean; if `true` then `approved_by` must be non-null |
+| `requires_approval` | boolean; gates a public/financial action |
 | `approved_by` | string or `null`; must be `null` when `requires_approval` is `false` |
 | `payload` | object; department-owned shape |
 

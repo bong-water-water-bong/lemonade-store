@@ -9,9 +9,11 @@ Design notes worth remembering:
 * The envelope is intentionally *small*. Department-specific data lives
   in `payload`, which is opaque here. The envelope only carries enough
   to route, audit, and gate approvals.
-* `requires_approval` is paired with `approved_by` because "approved by
-  whom" is the audit answer. The two move together, so we reject mixed
-  states (approval-required but no approver, or vice versa).
+* `requires_approval` and `approved_by` together encode three states:
+  auto (`False`/`None`), draft (`True`/`None`), and approved
+  (`True`/`"who"`). Only the fourth combination — `False`/`"who"`,
+  pre-approval of an action that didn't need it — is invalid. See
+  `_validate_event` for the rationale.
 * `dump_event` uses `sort_keys=True` so two dumps of the same logical
   event are byte-identical. Downstream consumers can hash a line and
   expect the same hash on any machine; that keeps the cashier's
@@ -109,19 +111,48 @@ def _validate_event(event: Event) -> None:
             f"but department {event.department!r} owns namespace {dept_ns!r}"
         )
 
-    if event.requires_approval and event.approved_by is None:
-        raise EventValidationError(
-            "requires_approval=True must be paired with a non-null approved_by"
-        )
+    # Approval pair semantics:
+    #
+    #   requires_approval=False, approved_by=None     → normal automatic event
+    #   requires_approval=True,  approved_by=None     → DRAFT awaiting approval
+    #   requires_approval=True,  approved_by="alice"  → APPROVED action
+    #   requires_approval=False, approved_by="alice"  → invalid (you can't
+    #                                                   pre-approve an action
+    #                                                   that doesn't need
+    #                                                   approval)
+    #
+    # The DRAFT state is the whole reason `requires_approval` exists in the
+    # envelope: downstream consumers must check BOTH fields and only take a
+    # public/financial action on events that are either auto OR approved.
     if not event.requires_approval and event.approved_by is not None:
         raise EventValidationError("approved_by must be null when requires_approval=False")
 
 
 def load_event(data: Mapping[str, Any]) -> Event:
-    """Parse a dict (e.g. from `json.loads`) into a validated `Event`."""
+    """Parse a dict (e.g. from `json.loads`) into a validated `Event`.
+
+    Every field is type-checked before construction so a malformed JSON
+    payload always raises `EventValidationError` (not `TypeError` /
+    `KeyError`) — downstream consumers can rely on a single exception
+    type when defending the envelope.
+    """
     for required in _REQUIRED_FIELDS:
         if required not in data:
             raise EventValidationError(f"missing required field {required!r}")
+
+    for scalar in (
+        "schema_version",
+        "event_id",
+        "ts",
+        "store_id",
+        "department",
+        "type",
+        "source",
+    ):
+        if not isinstance(data[scalar], str):
+            raise EventValidationError(
+                f"{scalar} must be a string, got {type(data[scalar]).__name__}"
+            )
 
     raw_actor = data["actor"]
     if not isinstance(raw_actor, Mapping):
@@ -129,7 +160,27 @@ def load_event(data: Mapping[str, Any]) -> Event:
     for required in ("kind", "id"):
         if required not in raw_actor:
             raise EventValidationError(f"actor.{required} is required")
+        if not isinstance(raw_actor[required], str):
+            raise EventValidationError(
+                f"actor.{required} must be a string, got {type(raw_actor[required]).__name__}"
+            )
     actor = Actor(kind=raw_actor["kind"], id=raw_actor["id"])
+
+    requires_approval = data.get("requires_approval", False)
+    if not isinstance(requires_approval, bool):
+        raise EventValidationError(
+            f"requires_approval must be a boolean, got {type(requires_approval).__name__}"
+        )
+
+    approved_by = data.get("approved_by")
+    if approved_by is not None and not isinstance(approved_by, str):
+        raise EventValidationError(
+            f"approved_by must be a string or null, got {type(approved_by).__name__}"
+        )
+
+    raw_payload = data.get("payload", {})
+    if not isinstance(raw_payload, Mapping):
+        raise EventValidationError(f"payload must be an object, got {type(raw_payload).__name__}")
 
     return Event(
         schema_version=data["schema_version"],
@@ -140,9 +191,9 @@ def load_event(data: Mapping[str, Any]) -> Event:
         type=data["type"],
         source=data["source"],
         actor=actor,
-        requires_approval=data.get("requires_approval", False),
-        approved_by=data.get("approved_by"),
-        payload=dict(data.get("payload", {})),
+        requires_approval=requires_approval,
+        approved_by=approved_by,
+        payload=dict(raw_payload),
     )
 
 

@@ -87,6 +87,29 @@ class TestConfigValidation:
         with pytest.raises(ConfigValidationError):
             load_store_config(p)
 
+    def test_non_string_scalar_rejected(self, tmp_path: Path) -> None:
+        p = tmp_path / "store.toml"
+        p.write_text(
+            "\n".join(
+                [
+                    'store_id = "demo"',
+                    'business_name = "Demo"',
+                    'suite = "lemonade-store"',
+                    'cashier_repo = "lemonade-cashier"',
+                    'website_repo = "demo-site"',
+                    "currency = 7",  # not a string
+                    'payment_core = "cash_only"',
+                    'barter = "allowed_with_approval"',
+                    'cloudflare = "website_only"',
+                    'categories = ["vape"]',
+                    "",
+                ]
+            )
+        )
+        with pytest.raises(ConfigValidationError) as exc:
+            load_store_config(p)
+        assert "currency" in str(exc.value).lower()
+
     def test_missing_currency_is_rejected_not_guessed(self, tmp_path: Path) -> None:
         p = tmp_path / "store.toml"
         p.write_text(

@@ -107,17 +107,76 @@ class TestEventValueConstraints:
         with pytest.raises(EventValidationError):
             load_event(payload)
 
-    def test_approved_event_requires_approver(self) -> None:
+    def test_draft_event_is_accepted_with_null_approver(self) -> None:
+        # requires_approval=True + approved_by=None is the DRAFT state.
+        # Downstream consumers must defer the public action until an
+        # approval event arrives; the envelope itself accepts the draft.
         payload = _valid_payload()
         payload["requires_approval"] = True
         payload["approved_by"] = None
-        with pytest.raises(EventValidationError):
-            load_event(payload)
+        event = load_event(payload)
+        assert event.requires_approval is True
+        assert event.approved_by is None
+
+    def test_approved_event_is_accepted_with_approver(self) -> None:
+        payload = _valid_payload()
+        payload["requires_approval"] = True
+        payload["approved_by"] = "owner"
+        event = load_event(payload)
+        assert event.requires_approval is True
+        assert event.approved_by == "owner"
 
     def test_unapproved_event_must_not_carry_approver(self) -> None:
         payload = _valid_payload()
         payload["requires_approval"] = False
         payload["approved_by"] = "owner"
+        with pytest.raises(EventValidationError):
+            load_event(payload)
+
+
+class TestEventTypeValidation:
+    """Loader fails fast on type violations with `EventValidationError`."""
+
+    @pytest.mark.parametrize(
+        "field",
+        ["schema_version", "event_id", "ts", "store_id", "department", "type", "source"],
+    )
+    def test_non_string_scalar_rejected(self, field: str) -> None:
+        payload = _valid_payload()
+        payload[field] = 42
+        with pytest.raises(EventValidationError):
+            load_event(payload)
+
+    def test_actor_must_be_mapping(self) -> None:
+        payload = _valid_payload()
+        payload["actor"] = "alice"
+        with pytest.raises(EventValidationError):
+            load_event(payload)
+
+    @pytest.mark.parametrize("subfield", ["kind", "id"])
+    def test_actor_subfield_must_be_string(self, subfield: str) -> None:
+        payload = _valid_payload()
+        payload["actor"][subfield] = 7
+        with pytest.raises(EventValidationError):
+            load_event(payload)
+
+    def test_requires_approval_must_be_boolean(self) -> None:
+        payload = _valid_payload()
+        payload["requires_approval"] = "yes"
+        with pytest.raises(EventValidationError):
+            load_event(payload)
+
+    def test_approved_by_must_be_string_or_null(self) -> None:
+        payload = _valid_payload()
+        payload["requires_approval"] = True
+        payload["approved_by"] = 123
+        with pytest.raises(EventValidationError):
+            load_event(payload)
+
+    @pytest.mark.parametrize("bad_payload", ["not-an-object", 42, ["a", "b"]])
+    def test_payload_must_be_object(self, bad_payload: object) -> None:
+        payload = _valid_payload()
+        payload["payload"] = bad_payload
         with pytest.raises(EventValidationError):
             load_event(payload)
 
