@@ -1,0 +1,15 @@
+# Departments active for Tie Dye Farms.
+#
+# In v0.1 the example enables every known department. A future store
+# could opt out (e.g. a soil-only operation might not need `marketeer`
+# yet); the loader validates that every name is part of the registry.
+
+departments = [
+  "cashier",
+  "inventory",
+  "accounting",
+  "marketeer",
+  "supplier",
+  "reports",
+  "site",
+]

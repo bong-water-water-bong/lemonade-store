@@ -1,0 +1,27 @@
+# Example Lemonade Store config — Tie Dye Farms.
+#
+# This file is read by `lemonade_store.config.load_store_config`. Edit
+# the values to fork it for a new business.
+#
+# Notes on choices:
+#   currency: explicit USD. Both USD and CAD are valid in v0.1. The
+#     loader refuses to guess.
+#   payment_core: v0.1 only knows "cash_only". Stripe / card readers /
+#     wallets are *out of scope* for the core.
+#   barter: "allowed_with_approval" means an attendant must explicitly
+#     mark a transaction as a barter record. Silent barter is not OK.
+#   cloudflare: "website_only" — Cloudflare is used to host the public
+#     website only. It is never on the path of a sale or a till close.
+
+store_id      = "tie-dye-farms"
+business_name = "Tie Dye Farms"
+suite         = "lemonade-store"
+cashier_repo  = "lemonade-cashier"
+website_repo  = "tiedye-farms-site"
+
+currency      = "USD"
+payment_core  = "cash_only"
+barter        = "allowed_with_approval"
+cloudflare    = "website_only"
+
+categories = ["vape", "convenience", "soil", "tobacco"]

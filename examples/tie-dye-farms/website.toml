@@ -1,0 +1,41 @@
+# Public website config for Tie Dye Farms.
+#
+# This is consumed by `lemonade-site` (the website-package department).
+# The local Lemonade Store does not need this file to operate; only the
+# `site` department reads it when it drafts a deploy.
+
+site_repo            = "tiedye-farms-site"
+domain               = "tiedyefarms.example"
+cloudflare_account   = "tie-dye-farms"
+production_branch    = "main"
+build_command        = "echo 'replace with your static-site build'"
+output_directory     = "dist"
+turnstile_enabled    = true
+
+[[pages]]
+slug  = "home"
+title = "Tie Dye Farms"
+
+[[pages]]
+slug  = "products"
+title = "Products"
+
+[[pages]]
+slug  = "soil"
+title = "Soil Availability"
+
+[[pages]]
+slug  = "hours-location"
+title = "Hours and Location"
+
+[[pages]]
+slug  = "contact"
+title = "Contact"
+
+[[pages]]
+slug  = "privacy"
+title = "Privacy and Local-Data Statement"
+
+[[pages]]
+slug  = "promotions"
+title = "Promotions"
