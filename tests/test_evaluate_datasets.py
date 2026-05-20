@@ -29,9 +29,9 @@ def test_parse_model_json_accepts_plain_and_fenced_json() -> None:
 
 def test_build_prompt_does_not_leak_expected_values() -> None:
     tool = _load_tool()
-    row = tool.load_rows(Path(__file__).resolve().parents[1] / "datasets", ["cashier_events.jsonl"])[
-        0
-    ]
+    row = tool.load_rows(
+        Path(__file__).resolve().parents[1] / "datasets", ["cashier_events.jsonl"]
+    )[0]
 
     prompt = tool.build_prompt(row)
 
@@ -61,9 +61,9 @@ def test_dry_run_scores_all_seed_rows() -> None:
 
 def test_score_row_rejects_wrong_boolean_value() -> None:
     tool = _load_tool()
-    row = tool.load_rows(Path(__file__).resolve().parents[1] / "datasets", ["security_events.jsonl"])[
-        0
-    ]
+    row = tool.load_rows(
+        Path(__file__).resolve().parents[1] / "datasets", ["security_events.jsonl"]
+    )[0]
 
     result = tool.score_row(
         row,
