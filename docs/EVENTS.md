@@ -49,6 +49,7 @@ validator.
 | `marketeer` | `marketing.*` *(differs from department name)* |
 | `supplier` | `supplier.*` |
 | `reports` | `reports.*` |
+| `security` | `security.*` |
 | `site` | `site.*` |
 | _shared_ | `store.*`, `audit.*` (any department may emit) |
 

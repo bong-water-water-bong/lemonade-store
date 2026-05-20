@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "lemonade-store"
 version = "0.1.0"
-description = "Offline-first ma-and-pa retail suite: cashier as the source of truth, accounting/inventory/marketing/supplier/reports/site as departments. Local-first; built for AMD Strix Halo."
+description = "Offline-first ma-and-pa retail suite: cashier as the source of truth, with accounting/inventory/marketing/supplier/reports/security/site departments. Local-first; built for AMD Strix Halo."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { file = "LICENSE" }

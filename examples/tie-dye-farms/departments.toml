@@ -11,5 +11,6 @@ departments = [
   "marketeer",
   "supplier",
   "reports",
+  "security",
   "site",
 ]

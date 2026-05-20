@@ -30,6 +30,10 @@ workstation. v0.1 does not implement the storage; this doc pins the
   reports/
     daily/
     weekly/
+  security/
+    findings/
+    aibom/
+    reports/
   site/
     queue/                         # owner-approved changes waiting to deploy
     drafts/

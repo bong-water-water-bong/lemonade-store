@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added `security` as a Lemonade Store department contract for
+  `lemonade-security`, covering local policy checks, agent audits,
+  AIBOM manifests, privacy findings, and the Lemonade SDK security
+  plugin boundary.
+
 ## [0.1.0] — 2026-05-19
 
 ### Added

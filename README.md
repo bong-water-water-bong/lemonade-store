@@ -13,8 +13,8 @@
 [Lemonade Cashier](https://github.com/bong-water-water-bong/lemonade-cashier).
 The cashier handles checkout. Lemonade Store coordinates the rest of
 the store departments around it — accounting, inventory, marketing,
-supplier, owner reports, and a public website package — all running
-**locally first** on a single AMD Strix Halo workstation.
+supplier, owner reports, security, and a public website package — all
+running **locally first** on a single AMD Strix Halo workstation.
 
 The first business target is **Tie Dye Farms** (vape / convenience /
 soil / tobacco-adjacent, plus a future soil warehouse). The same
@@ -65,6 +65,7 @@ The full list is in [`AGENTS.md`](AGENTS.md).
 | `marketeer` | `lemonade-marketeer` | organic post drafts, promotion calendar, website copy drafts |
 | `supplier` | `lemonade-supplier` | supplier catalog, purchase orders, reorder suggestions |
 | `reports` | `lemonade-reports` | end-of-day summaries, weekly digest, exceptions |
+| `security` | `lemonade-security` | local policy checks, agent audits, AIBOM manifests, privacy findings |
 | `site` | `lemonade-site` | public website, Cloudflare Pages deploy guide |
 
 See [`docs/DEPARTMENTS.md`](docs/DEPARTMENTS.md) for the full contracts.

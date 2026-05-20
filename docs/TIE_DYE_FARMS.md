@@ -31,8 +31,8 @@ get their own category from day one.
 
 ## Departments enabled
 
-All seven: cashier, inventory, accounting, marketeer, supplier,
-reports, site.
+All eight: cashier, inventory, accounting, marketeer, supplier,
+reports, security, site.
 
 ## Website plan
 
@@ -64,6 +64,8 @@ reports, site.
   `supplier.po.drafted` event referencing the existing supplier.
 - **Reports summarizer:** end-of-day owner digest with sales, CIT
   exceptions, and pending approvals.
+- **Security auditor:** local-only checks for agent permissions,
+  privacy boundaries, AIBOM completeness, and policy drift.
 
 v0.1 of this repo does **not** implement any of those agents. It pins
 the contracts they will share.

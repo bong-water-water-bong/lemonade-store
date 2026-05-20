@@ -26,6 +26,7 @@ Make a tiny shop run with minimal owner admin work:
 - soil sales tracking
 - organic social marketing
 - simple accounting
+- local security and privacy audits
 - website publishing through Cloudflare
 - owner-readable daily reports
 
@@ -45,6 +46,7 @@ lemonade-accounting     ledgers, expenses, tax summaries, cash reconciliation
 lemonade-marketeer      product posts, organic campaigns, website copy drafts
 lemonade-supplier       purchase orders, supplier comparison, reorder suggestions
 lemonade-reports        owner summaries, end-of-day close, weekly snapshots
+lemonade-security       local policy checks, agent audits, AIBOM manifests
 lemonade-site           static public website, Cloudflare Pages deployment
 ```
 

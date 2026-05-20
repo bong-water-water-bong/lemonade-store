@@ -37,7 +37,7 @@ Python 3.11+ is required (`tomllib` ships in the stdlib from 3.11).
 
 ## Adding a department
 
-Don't, unless the suite genuinely grew. v0.1 has seven departments and
+Don't, unless the suite genuinely grew. v0.1 has eight departments and
 that's enough surface for a ma-and-pa shop. If you are sure:
 
 1. Add it to `KNOWN_DEPARTMENTS`.

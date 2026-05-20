@@ -109,6 +109,28 @@ Every department declares:
   `marketing.post.approved`, `supplier.order.received`.
 - **Emits:** `reports.daily`, `reports.weekly`, `reports.exception`.
 
+## Security
+
+- **Repo:** `lemonade-security`
+- **Namespace:** `security.*`
+- **Owns:** local security policy checks, agent permission audits,
+  GenAI data-risk findings, AI bill-of-materials manifests, model and
+  tool inventory, privacy boundary checks, offline security reports,
+  and the Lemonade SDK security plugin.
+- **Consumes:** `cashier.transaction.closed`,
+  `cashier.cit.bag.received`, `accounting.daily_close`,
+  `inventory.created`, `marketing.post.approved`,
+  `supplier.order.received`, `reports.exception`,
+  `site.deploy.completed`.
+- **Emits:** `security.finding.created`,
+  `security.policy.checked`, `security.aibom.generated`,
+  `security.audit.completed`.
+- **Owner approval for:** `export_report`, `share_finding`.
+- **Must not:** mutate cashier, accounting, inventory, supplier,
+  reports, site, or marketing events; call cloud services by default;
+  export findings without owner approval; store customer audio,
+  images, or payment data.
+
 ## Site
 
 - **Repo:** `lemonade-site`

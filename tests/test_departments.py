@@ -27,6 +27,7 @@ EXPECTED = {
     "marketeer",
     "supplier",
     "reports",
+    "security",
     "site",
 }
 
@@ -75,6 +76,11 @@ class TestPublicSurfaceRequiresApproval:
     def test_site_deploy_requires_owner_approval(self) -> None:
         site = registry()["site"]
         assert "deploy" in site.requires_owner_approval_for
+
+    def test_security_exports_require_owner_approval(self) -> None:
+        security = registry()["security"]
+        for needs_approval in ("export_report", "share_finding"):
+            assert needs_approval in security.requires_owner_approval_for
 
 
 class TestCashierIsSourceOfTruth:

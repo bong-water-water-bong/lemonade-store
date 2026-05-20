@@ -12,7 +12,7 @@ workstation:
 
 - Cash-only checkout via [Lemonade Cashier](https://github.com/bong-water-water-bong/lemonade-cashier).
 - One repo per *department* (accounting, inventory, marketing, supplier,
-  reports, site), each with explicit boundaries.
+  reports, security, site), each with explicit boundaries.
 - A shared event envelope (`store.event.v1`) every department agrees on.
 - A public-website package on Cloudflare Pages with step-by-step setup.
 - Agents that **draft** work and humans that **approve** anything with
@@ -24,8 +24,8 @@ workstation:
    gateways in the core path. Cash, change, receipts, CIT custody, and
    explicitly-approved barter records only.
 2. **Cashier is the source of truth for checkout.** Accounting,
-   inventory, marketing, and reports *consume* cashier events. They
-   must not rewrite closed cashier transactions.
+   inventory, marketing, reports, and security *consume* cashier
+   events. They must not rewrite closed cashier transactions.
 3. **Local-first.** Cloud services are allowed for the public website
    only. A daily store close, till reconcile, or inventory read must
    work with no network.
@@ -70,6 +70,8 @@ marketeer drafts            ← writes marketing.post.drafted; owner approves
 site package                ← Cloudflare Pages, owner-approved publishes
    ↓
 reports                     ← daily / weekly owner digests
+   ↓
+security                    ← local policy checks, agent audits, AIBOM manifests
 ```
 
 A PR that adds a layer to the right of the current frontier should be
