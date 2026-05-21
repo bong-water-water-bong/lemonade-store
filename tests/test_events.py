@@ -231,3 +231,35 @@ class TestEventClassValidation:
                 source="x",
                 actor=Actor(kind="attendant", id="alice"),
             )
+
+
+class TestApprovalHelpers:
+    def _make_event(self, requires_approval: bool, approved_by: str | None) -> Event:
+        raw = _valid_payload()
+        raw["requires_approval"] = requires_approval
+        raw["approved_by"] = approved_by
+        return load_event(raw)
+
+    def test_is_auto_when_no_approval_required(self) -> None:
+        event = self._make_event(requires_approval=False, approved_by=None)
+        assert event.is_auto() is True
+        assert event.is_draft() is False
+        assert event.is_approved() is False
+
+    def test_is_draft_when_approval_pending(self) -> None:
+        event = self._make_event(requires_approval=True, approved_by=None)
+        assert event.is_auto() is False
+        assert event.is_draft() is True
+        assert event.is_approved() is False
+
+    def test_is_approved_when_explicit_approver_set(self) -> None:
+        event = self._make_event(requires_approval=True, approved_by="alice")
+        assert event.is_auto() is False
+        assert event.is_draft() is False
+        assert event.is_approved() is True
+
+    def test_helpers_are_mutually_exclusive(self) -> None:
+        for req, appr in [(False, None), (True, None), (True, "bob")]:
+            event = self._make_event(requires_approval=req, approved_by=appr)
+            states = [event.is_auto(), event.is_draft(), event.is_approved()]
+            assert sum(states) == 1, f"expected exactly one True for {req=} {appr=}, got {states}"

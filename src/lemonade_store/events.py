@@ -83,6 +83,18 @@ class Event:
     def __post_init__(self) -> None:
         _validate_event(self)
 
+    def is_auto(self) -> bool:
+        """True when this event does not require approval (normal automatic event)."""
+        return not self.requires_approval
+
+    def is_draft(self) -> bool:
+        """True when this event is awaiting approval (requires_approval=True, not yet approved)."""
+        return self.requires_approval and self.approved_by is None
+
+    def is_approved(self) -> bool:
+        """True when this event has been explicitly approved."""
+        return self.requires_approval and self.approved_by is not None
+
 
 def _namespace_of(event_type: str) -> str:
     head, _, _ = event_type.partition(".")
