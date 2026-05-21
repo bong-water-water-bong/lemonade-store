@@ -8,8 +8,12 @@ easy to inspect by a shop owner.
 
 - Use Lemonade-authored examples only.
 - Do not copy public Hugging Face retail datasets into this folder.
-- Do not include customer audio, customer images, card data, tokens, passwords,
-  phone numbers, addresses, or real receipts.
+- Do not include real customer audio, real customer images, real card data, real
+  tokens, real passwords, phone numbers, addresses, or real receipts.
+  Exception: security/policy datasets may contain *synthetic* prohibited-shaped
+  placeholders (e.g. `"customer_audio": "synthetic_placeholder"`) specifically
+  to test that the model flags, redacts, or blocks them. Such rows must set
+  `synthetic: true` and the expected output must block or redact the field.
 - Keep money math deterministic in code. Model examples may parse intent, but
   Python/SQLite code must calculate totals, tax, change, and export policy.
 - Mark uncertain product matches with confirmation requirements.

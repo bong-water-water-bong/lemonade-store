@@ -72,3 +72,21 @@ def test_score_row_rejects_wrong_boolean_value() -> None:
 
     assert result["passed"] is False
     assert any("output.block" in mismatch for mismatch in result["mismatches"])
+
+
+def test_score_row_rejects_unexpected_top_level_fields() -> None:
+    tool = _load_tool()
+    row = tool.load_rows(
+        Path(__file__).resolve().parents[1] / "datasets", ["cashier_events.jsonl"]
+    )[0]
+
+    # Inject an extra field the expected schema does not define.
+    import json as _json
+
+    base = _json.dumps(row.expected)
+    with_extra = base[:-1] + ',"injected_field":"surprise"}'
+
+    result = tool.score_row(row, with_extra)
+
+    assert result["passed"] is False
+    assert "injected_field" in result["unexpected_fields"]

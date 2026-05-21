@@ -59,12 +59,19 @@ def load_rows(dataset_dir: Path, filenames: list[str] | None = None) -> list[Dat
     return rows
 
 
+_MAX_INPUT_CHARS = 4096
+
+
 def build_prompt(row: DatasetRow) -> str:
     required_fields = ", ".join(row.expected)
+    raw_input = json.dumps(row.input, sort_keys=True)
+    # Truncate oversized dataset inputs before they reach the model endpoint.
+    if len(raw_input) > _MAX_INPUT_CHARS:
+        raw_input = raw_input[:_MAX_INPUT_CHARS] + " [truncated]"
     return (
         f"Department: {row.department}\n"
         f"Task: {row.task}\n"
-        f"Input JSON: {json.dumps(row.input, sort_keys=True)}\n"
+        f"Input JSON: {raw_input}\n"
         f"Return compact JSON only with these top-level fields: {required_fields}."
     )
 
@@ -193,6 +200,7 @@ def score_row(row: DatasetRow, content: str) -> dict[str, Any]:
         }
 
     missing = sorted(set(row.expected) - set(parsed))
+    unexpected = sorted(set(parsed) - set(row.expected))
     mismatches = _expected_mismatches(row.expected, parsed, "output")
     return {
         "id": row.id,
@@ -200,8 +208,9 @@ def score_row(row: DatasetRow, content: str) -> dict[str, Any]:
         "valid_json": True,
         "top_level_fields_present": not missing,
         "missing_fields": missing,
+        "unexpected_fields": unexpected,
         "mismatches": mismatches,
-        "passed": not missing and not mismatches,
+        "passed": not missing and not unexpected and not mismatches,
         "output": parsed,
     }
 
@@ -221,10 +230,24 @@ def run_evaluation(
 
     results: list[dict[str, Any]] = []
     for row in rows:
-        content = json.dumps(row.expected, separators=(",", ":")) if dry_run else call_model(
-            server_url, model, row, timeout
-        )
-        results.append(score_row(row, content))
+        if dry_run:
+            content = json.dumps(row.expected, separators=(",", ":"))
+            results.append(score_row(row, content))
+        else:
+            try:
+                content = call_model(server_url, model, row, timeout)
+                results.append(score_row(row, content))
+            except RuntimeError as exc:
+                results.append(
+                    {
+                        "id": row.id,
+                        "department": row.department,
+                        "valid_json": False,
+                        "top_level_fields_present": False,
+                        "passed": False,
+                        "error": str(exc),
+                    }
+                )
 
     passed = sum(1 for result in results if result["passed"])
     return {
