@@ -57,6 +57,29 @@ class TestEventConstruction:
         # event log stays diff-friendly and hash-chainable downstream.
         assert dump_event(event) == dump_event(event)
 
+    def test_dump_event_is_byte_identical_for_independently_constructed_events(self) -> None:
+        # Hash-chain guarantee: two events built from the same logical data on
+        # separate code paths must produce the same bytes. Dict insertion order
+        # or actor construction differences must not break this.
+        raw = _valid_payload()
+        event_a = load_event(dict(raw))
+        event_b = load_event(dict(raw))
+        assert dump_event(event_a) == dump_event(event_b)
+
+    def test_arbitrary_payload_contents_are_accepted(self) -> None:
+        # The envelope validator is intentionally payload-opaque (Rule 704923).
+        # Deeply nested, mixed-type, or unusual payload structures must pass
+        # envelope validation unchanged so department repos own their schemas.
+        raw = _valid_payload()
+        raw["payload"] = {
+            "nested": {"deep": [1, True, None, {"x": "y"}]},
+            "unicode": "’中文",
+            "empty_list": [],
+        }
+        event = load_event(raw)
+        assert event.payload["nested"]["deep"][2] is None
+        assert event.payload["unicode"] == "’中文"
+
 
 class TestEventRequiredFields:
     @pytest.mark.parametrize(
