@@ -1,30 +1,27 @@
-# lemonade-store — Wiki
+# Project Wiki: Lemonade Store
 
-> Umbrella retail-OS suite sitting above lemonade-cashier — store-level orchestration, inventory, and multi-department coordination for a local-first ma-and-pa shop.
+## Mission
+Build a local-first, offline-capable retail operating system for a tiny ma-and-pa shop, running end-to-end on a single AMD Strix Halo workstation. The system coordinates multiple departments (accounting, inventory, marketing, etc.) around a central cashier.
 
-## Current State
+## Architecture
+- **Umbrella Suite**: Coordinates decentralized departments, each living in its own repository.
+- **Shared Event Envelope**: All departments communicate via `store.event.v1` JSON events.
+- **Local-First / Stdlib-Only**: The runtime package (`lemonade_store.*`) imports only the Python standard library to ensure maximum portability and reliability.
+- **Source of Truth**: The `lemonade-cashier` repository is the source of truth for all checkout transactions.
 
-v0.1 (merged 2026-05-19): docs and contracts only. What exists:
+## Agent Handoff
+- **How to Test**: Run `make test`, `make lint`, and `make type`. Python 3.11+ is required.
+- **Hot Paths**:
+    - `src/lemonade_store/`: Core contract helpers for events and department registries.
+    - `examples/tie-dye-farms/`: Reference configuration and sample event logs for the first target business.
+    - `docs/DEPARTMENTS.md`: Defines the `owns`, `consumes`, and `emits` contracts for every department.
+- **Current Priorities**: 
+    - Establishing the frontier of cross-department flows (e.g., accounting consuming cashier events).
+    - Ensuring all new event types are properly registered in the department registry.
 
-- `src/lemonade_store/` — three stdlib-only Python modules defining the `store.event.v1` envelope, the eight-department registry, and the TOML-based store config loader.
-- `docs/` — SPEC, DEPARTMENTS, EVENTS, BUILD_ORDER, DATA_LAYOUT, CLOUDFLARE_WEBSITE, and TIE_DYE_FARMS references.
-- `examples/tie-dye-farms/` — a working store config + sample event log (the reference deployment for a vape/convenience/tobacco/soil shop).
-- `datasets/` — sample JSONL event logs for cashier, accounting, and security events.
-
-What does not exist yet: any running agent, service, or department repo. The per-department repos (`lemonade-accounting`, `lemonade-inventory`, `lemonade-marketeer`, `lemonade-supplier`, `lemonade-reports`, `lemonade-security`, `lemonade-site`) are planned but not yet created. The next milestone is the accounting export — reading cashier JSONL and emitting `accounting.export.created`.
-
-## Start Here
-
-- [[architecture]] — scope, relationship to cashier, v0.1 contract definitions, event envelope mechanics, department registry design
-
-## Open Threads
-
-- **Accounting export is the frontier.** Per `docs/BUILD_ORDER.md`, the accounting export (reading cashier JSONL, writing `accounting.export.created`) is the first real cross-department flow. Until that lands, no department repo has been exercised against the envelope.
-- **Department repos do not exist.** The registry defines eight departments but only `lemonade-cashier` is a real repo. `lemonade-inventory`, `lemonade-accounting`, etc. are placeholders with no code.
-- **Vision pipeline integration point is undefined.** The cashier's `sensors.*` stubs exist downstream; how product-image data flows into `inventory.created` events through the vision pipeline has not been specified at the envelope level.
-
-## Article Index
-
-| Article | What it covers |
-|---------|----------------|
-| [[architecture]] | Scope, cashier relationship, v0.1 contracts, event envelope, department registry, config loader, Tie Dye Farms example |
+## Decisions & Gotchas
+- **Cash-Only Core**: Explicitly forbids Stripe, card readers, or third-party payment gateways in the core path.
+- **Owner Approval Gates**: Any agent action with public reach (e.g., marketing posts) or financial consequences must be gated by explicit owner approval in the event log.
+- **Privacy Boundary**: No customer card data, audio, or images are to be persisted or processed.
+- **Envelope Validation**: The `payload` of an event is opaque to the envelope validator; individual departments are responsible for internal schema validation.
+- **No Runtime Dependencies**: Do not add third-party dependencies to the runtime package.
