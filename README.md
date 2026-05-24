@@ -9,6 +9,8 @@
 
 > Offline agents for ma-and-pa retail.
 
+**→ [Project Wiki](docs/wiki/README.md)** — architecture, decisions, gotchas, and agent onboarding.
+
 **Lemonade Store** is the umbrella suite that sits *above*
 [Lemonade Cashier](https://github.com/bong-water-water-bong/lemonade-cashier).
 The cashier handles checkout. Lemonade Store coordinates the rest of
