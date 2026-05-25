@@ -7,24 +7,27 @@
 [![local-first](https://img.shields.io/badge/local--first-cash--only%20core-2ea44f)](#hard-rules)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-> Offline agents for ma-and-pa retail.
+> Project/spec home for Lemonade marketplace plugins.
 
 **→ [Project Wiki](docs/wiki/README.md)** — architecture, decisions, gotchas, and agent onboarding.
 
-**Lemonade Store** is the umbrella suite that sits *above*
-[Lemonade Cashier](https://github.com/bong-water-water-bong/lemonade-cashier).
-The cashier handles checkout. Lemonade Store coordinates the rest of
-the store departments around it — accounting, inventory, marketing,
-supplier, owner reports, security, and a public website package — all
-running **locally first** on a single AMD Strix Halo workstation.
+**Lemonade Store** is the project/spec repo for a family of Lemonade
+marketplace plugins. It is not the Lemonade App runtime and it does not
+own `lemond`, port `13305`, or any app service lifecycle.
+
+[Lemonade Cashier](https://github.com/bong-water-water-bong/lemonade-cashier)
+and the other departments are plugin source repos. They are packaged
+separately in the `lemonade-marketplace-plugins` workspace and run as
+Podman-isolated marketplace plugins wired through `lemond`.
 
 The first business target is **Tie Dye Farms** (vape / convenience /
 soil / tobacco-adjacent, plus a future soil warehouse). The same
 suite is designed to be cloned for any ma-and-pa shop.
 
-This repo is **v0.1**: docs and contracts only. No agents are
-implemented here. Each department lives in its own repo and consumes
-the shared event envelope defined in this one.
+This repo is **v0.1**: docs and contracts only. No agents, app runtime,
+containers, or service launchers are implemented here. Each department
+lives in its own repo and becomes a marketplace plugin package through
+the separate `lemonade-marketplace-plugins` workspace.
 
 ## What's in this repo
 
@@ -32,7 +35,7 @@ the shared event envelope defined in this one.
 lemonade-store/
   AGENTS.md                       # hard rules for every contributor (human or AI)
   README.md                       # you are here
-  docs/                           # the spec, department boundaries, build order, Cloudflare guide
+  docs/                           # the spec, plugin boundaries, build order, Cloudflare guide
   examples/tie-dye-farms/         # a working store config + sample event log
   src/lemonade_store/             # tiny contract helpers (events, departments, config)
   tests/                          # contract tests
@@ -71,6 +74,19 @@ The full list is in [`AGENTS.md`](AGENTS.md).
 | `site` | `lemonade-site` | public website, Cloudflare Pages deploy guide |
 
 See [`docs/DEPARTMENTS.md`](docs/DEPARTMENTS.md) for the full contracts.
+
+## Runtime boundary
+
+The actual app is **Lemonade App / Lemonade Server** (`lemond`). It owns:
+
+- `http://127.0.0.1:13305`
+- marketplace/plugin discovery
+- model/runtime APIs
+
+Department repos do not start the app. `lemonade-store` does not start the
+app. All department plugins must be packaged with Podman in the separate
+`lemonade-marketplace-plugins` workspace and communicate with `lemond` through
+the plugin/marketplace boundary.
 
 ## The shared event envelope
 
@@ -129,10 +145,10 @@ for the step-by-step launch path.
 
 ## Status
 
-- v0.1 (this PR): docs + contracts + Tie Dye Farms example.
-- Next: per-department repos start consuming the envelope; the
-  accounting export from cashier JSONL is the first cross-department
-  flow.
+- v0.1: docs + contracts + Tie Dye Farms example.
+- Current reset: departments are plugin source repos only.
+- Runtime packaging belongs in `lemonade-marketplace-plugins`.
+- All plugins are Podman packages wired through `lemond`.
 - See [`docs/BUILD_ORDER.md`](docs/BUILD_ORDER.md) for what comes when.
 
 ## License

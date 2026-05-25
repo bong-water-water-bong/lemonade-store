@@ -13,7 +13,18 @@ frontier.
   `website.toml`, `sample_events.jsonl`).
 - [x] Cloudflare website guide.
 
-## v0.2 — accounting export from cashier JSONL
+## reset — marketplace plugin packaging boundary
+
+- [x] Keep `lemonade-store` as project/spec/docs only.
+- [x] Create separate `lemonade-marketplace-plugins` workspace.
+- [x] Treat every department repo as a plugin source package.
+- [x] Require Podman packaging for every plugin.
+- [x] Wire plugins through `lemond`, not direct repo integration.
+- [ ] Install Podman on the workstation.
+- [ ] Build one plugin image per department.
+- [ ] Add the marketplace registration bridge expected by `lemond`.
+
+## v0.2 — accounting plugin package
 
 - Add `lemonade-accounting` repo with a single agent (`closer`) that
   reads cashier `events.jsonl` and writes `accounting.daily_close`.

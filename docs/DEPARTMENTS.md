@@ -1,9 +1,14 @@
 # Departments
 
-Each Lemonade Store department lives in its own repo. This document
-pins the v0.1 contracts. The canonical machine-readable copy is
+Each Lemonade Store department lives in its own repo and is packaged as a
+Podman Lemonade marketplace plugin. This document pins the v0.1 contracts.
+The canonical machine-readable copy is
 `src/lemonade_store/departments.py`; if the two disagree, the Python
 file wins.
+
+The actual app runtime is Lemonade App / `lemond`. Department repos do not
+start the app and do not bind `13305`. Packaging and Podman manifests live in
+the separate `lemonade-marketplace-plugins` workspace.
 
 ## Shared shape
 

@@ -1,18 +1,30 @@
 # Architecture
 
-> Lemonade Store is the umbrella retail-OS suite that sits above Lemonade Cashier — it defines the shared event envelope and department boundaries that all store-level repos (accounting, inventory, marketeer, supplier, reports, security, site) will consume; in v0.1 only the contracts exist, no agents are implemented.
+> Lemonade Store is the project/spec repo for Lemonade marketplace plugins. It
+> defines the shared event envelope and department boundaries, but it is not
+> the Lemonade App runtime and it does not launch `lemond`.
 
 ## Overview
 
-Lemonade Store is designed as a single-workstation, local-first operating system for a ma-and-pa shop. Lemonade Cashier handles checkout and is the sole source of truth for closed transactions. Every other department — accounting, inventory, marketeer, supplier, reports, security, and site — is a separate repo that consumes events the cashier emits. This repo acts as the coordination layer: it publishes the shared event envelope (`store.event.v1`), the department registry, and store-level configuration contracts so all downstream repos can pin their expectations.
+Lemonade Store is designed as the project/spec home for a family of
+single-workstation, local-first Lemonade marketplace plugins. Lemonade App /
+Lemonade Server (`lemond`) is the runtime. The department repos — cashier,
+accounting, inventory, marketeer, supplier, reports, security, and site — are
+plugin source repos. They are packaged separately as Podman plugins and wired
+through `lemond`.
 
-v0.1 ships docs, contracts, and a Tie Dye Farms example config. No agents are running. The accounting export from cashier JSONL is planned as the first real cross-department flow.
+This repo acts only as the project contract layer: it publishes the shared
+event envelope (`store.event.v1`), the department registry, and store-level
+configuration contracts so plugin packages can pin their expectations.
+
+v0.1 ships docs, contracts, and a Tie Dye Farms example config. No agents,
+containers, services, or app runtimes are running from this repo.
 
 ## How It Works
 
 ### Current state (v0.1)
 
-Three small Python modules form the runtime package (`src/lemonade_store/`):
+Three small Python modules form the contract package (`src/lemonade_store/`):
 
 - **`events.py`** — defines the `store.event.v1` envelope (`Event` dataclass, `Actor`, `load_event`, `dump_event`, `EventValidationError`). `dump_event` uses `sort_keys=True` so two serializations of the same event are byte-identical, preserving hash-chain compatibility with cashier's audit log. The `payload` field is intentionally opaque — each department is responsible for its own payload schema.
 - **`departments.py`** — a static Python literal registry of all eight departments (`cashier`, `inventory`, `accounting`, `marketeer`, `supplier`, `reports`, `security`, `site`). Each `Department` dataclass records what the repo owns, what events it consumes/emits, which agents it runs, what requires owner approval, and its read/write namespace perimeter. The registry is validated on construction: a department may only emit into its own namespace and write into its own prefix.
@@ -40,19 +52,24 @@ Every event flowing between departments must conform to `store.event.v1`:
 
 The `requires_approval` / `approved_by` pair encodes three legal states: **auto** (`false`/`null`), **draft** (`true`/`null`), and **approved** (`true`/`"who"`). The fourth combination (`false`/`"who"`) is invalid and rejected by the validator. Downstream consumers must check both fields before taking a public or financial action.
 
-### Department event flow (planned)
+### Department plugin flow
 
 ```
-cashier  →  accounting (daily close, reconciliation)
-cashier  →  inventory (stock depletion)
-cashier  →  reports (daily summary)
-cashier  →  security (audit)
-inventory → supplier (low_stock → po.drafted)
-inventory → marketeer (new product copy drafts)
-marketeer → site (approved posts → site.change.drafted)
+Lemonade App / lemond
+  ↕ marketplace/plugin boundary
+Podman plugin: cashier
+Podman plugin: accounting
+Podman plugin: inventory
+Podman plugin: supplier
+Podman plugin: marketeer
+Podman plugin: site
+Podman plugin: reports
+Podman plugin: security
 ```
 
-Cashier events are the upstream source; all other departments are consumers. No department may rewrite a closed cashier transaction.
+Plugins do not call each other directly. Cross-plugin coordination goes through
+`lemond` and approved marketplace/event contracts. No department may rewrite a
+closed cashier transaction.
 
 ### Example config (Tie Dye Farms)
 
@@ -60,7 +77,13 @@ Cashier events are the upstream source; all other departments are consumers. No 
 
 ## Key Decisions
 
-- **Why store sits above cashier, not the other way around:** Cashier is operationally critical and must never depend on store-level logic to make a sale. The dependency arrow points inward: cashier emits, everything else consumes. Outages in inventory or accounting cannot block a transaction.
+- **Why store is project/spec only:** Lemonade App / `lemond` is the runtime.
+  Department repos are marketplace plugin sources. Keeping `lemonade-store` out
+  of runtime ownership prevents a department repo from accidentally becoming
+  the app.
+- **Why every plugin uses Podman:** Plugin isolation must be explicit and
+  repeatable. Each department gets its own container, data directory, and
+  `LEMOND_BASE_URL`; none of them bind the app port.
 - **Why the department registry is a static Python literal, not a runtime config:** Changing the contract is a code review, not an ops action. The static literal is auditable, pinnable, and validated at import time — there is no window between "config loaded" and "contract checked."
 - **Why docs-first for v0.1:** Building the shared envelope and department boundaries before any department repo exists prevents the common failure mode where each repo invents its own event schema and the integration layer becomes a translation mess. The envelope is the contract; agreeing on it first means department repos can be written in parallel without coordination debt.
 - **Why `marketeer` uses the `marketing` namespace (not `marketeer`):** Event types read naturally in downstream code — `marketing.post.drafted` is unambiguous; `marketeer.post.drafted` is confusing when the consuming repo is named `lemonade-inventory`. The repo name follows the suite convention; the event namespace follows readability.
@@ -68,7 +91,9 @@ Cashier events are the upstream source; all other departments are consumers. No 
 
 ## Gotchas
 
-- **v0.1 is contracts-only — no runtime implementation. Don't look for running services.** The `src/` package validates events and loads configs; it does not start any agent, server, or background process. Each department repo (`lemonade-accounting`, `lemonade-inventory`, etc.) is a separate project that does not yet exist.
+- **v0.1 is contracts-only — no runtime implementation. Don't look for running services.** The `src/` package validates events and loads configs; it does not start any agent, server, container, or background process.
+- **Do not start `lemond` from a department repo.** The app owns `13305`.
+  Department plugins are Podman packages wired through the marketplace boundary.
 - **`marketeer` ≠ `marketing` in event types.** The department name is `marketeer`; its event namespace is `marketing`. If you filter events by namespace prefix, use `marketing.`, not `marketeer.`.
 - **Approval state requires checking two fields.** A downstream consumer that only checks `requires_approval` will silently process unapproved draft events. Always check `is_auto()` or (`is_approved()`) before acting on an event with public or financial consequences.
 - **`dump_event` produces deterministic JSON, but the envelope does not validate timestamps or UUIDs.** `ts` and `event_id` are free strings at the envelope level. Department repos are responsible for enforcing ISO-8601 timestamps and unique IDs.
