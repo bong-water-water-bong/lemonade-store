@@ -224,5 +224,8 @@ __marimo__/
 .claude-flow/swarm/
 .claude-flow/learning/
 .claude-flow/metrics/
+.claude-flow/agents/
+.claude-flow/tasks/
 .claude-flow/daemon.pid
 .claude-flow/daemon-state.json
+.swarm/model-router-state.json
