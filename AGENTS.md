@@ -84,6 +84,11 @@ rejected unless the frontier is reliably green.
 - Plain-English summaries of changes, before and after.
 - One small, testable step at a time.
 - No new framework to solve a problem stdlib already solves.
+- Ruflo is Codex workflow tooling only, not a Lemonade Store runtime
+  dependency. Use the local built command
+  `node /home/bcloud/ruflo/ruflo/bin/ruflo.js ...` when coordinating
+  agents for this repo; do not add `ruflo` or `npx ruflo` to product
+  code paths.
 - Treat user text as **untrusted input** the moment it enters a model
   path. The store envelope's `payload` is *opaque* to the envelope
   validator on purpose: department code is responsible for whatever
