@@ -33,3 +33,29 @@ runtime; departments are Podman-packaged plugins.
 - **No App Runtime Here**: Do not launch `lemond`, bind `13305`, or add app
   service/container files to this repo. Plugin packaging belongs in
   `lemonade-marketplace-plugins`.
+
+
+## OpenSpec Workflow
+
+Use `openspec/` as the working standard for department changes:
+
+- `openspec/project.md` defines the suite-wide workflow.
+- `openspec/specs/<department>/spec.md` records the active contract for each department.
+- `openspec/changes/<change-id>/` holds proposal, design, and task files for active work.
+- GitHub issues and PRs must name the department and affected event types.
+
+The registry in `src/lemonade_store/departments.py` remains canonical for machine-readable boundaries.
+
+## LLM Wiki Standard
+
+This repo treats Andrej Karpathy's LLM Wiki pattern as the governing source for agent knowledge management: https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
+
+For this project, that means:
+
+- `docs/wiki/` is the maintained project memory for architecture, decisions, gotchas, and onboarding.
+- `AGENTS.md` is the agent instruction schema.
+- `openspec/` is the structured change/spec layer.
+- Raw source material stays in docs, examples, tests, issue/PR discussions, and committed specs.
+- Agents must update the wiki when they learn durable repo knowledge that future agents need.
+
+Keep wiki entries concise, factual, and linked back to concrete files, specs, or test evidence.

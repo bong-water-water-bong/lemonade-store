@@ -7,6 +7,10 @@
 [![local-first](https://img.shields.io/badge/local--first-cash--only%20core-2ea44f)](#hard-rules)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
+<p align="center">
+  <img src="docs/assets/lemonade-store-logo.svg" alt="Lemonade Store logo with the Lemonade mascot beside the department contract dashboard" width="900">
+</p>
+
 > Project/spec home for Lemonade marketplace plugins.
 
 **→ [Project Wiki](docs/wiki/README.md)** — architecture, decisions, gotchas, and agent onboarding.

@@ -57,23 +57,23 @@ workstation:
 ## Build order
 
 ```text
-docs + envelope contracts   ← this repo, v0.1
+docs + envelope contracts       ← this repo, v0.1
    ↓
-cashier on the envelope     ← lemonade-cashier already exists
+marketplace plugin boundary  ← package departments through lemond/Podman
    ↓
-accounting export           ← reads cashier JSONL, writes accounting.export.created
+accounting export            ← reads cashier JSONL, writes accounting.export.created
    ↓
-inventory feed              ← writes inventory.created, inventory.low_stock
+inventory feed               ← writes inventory.created, inventory.low_stock
    ↓
-supplier drafts             ← writes supplier.po.drafted on inventory.low_stock
+supplier drafts              ← writes supplier.po.drafted on inventory.low_stock
    ↓
-marketeer drafts            ← writes marketing.post.drafted; owner approves
+marketeer drafts             ← writes marketing.post.drafted; owner approves
    ↓
-site package                ← Cloudflare Pages, owner-approved publishes
+site package                 ← Cloudflare Pages, owner-approved publishes
    ↓
-reports                     ← daily / weekly owner digests
+reports                      ← daily / weekly owner digests
    ↓
-security                    ← local policy checks, agent audits, AIBOM manifests
+security                     ← local policy checks, agent audits, AIBOM manifests
 ```
 
 A PR that adds a layer to the right of the current frontier should be
@@ -84,17 +84,27 @@ rejected unless the frontier is reliably green.
 - Plain-English summaries of changes, before and after.
 - One small, testable step at a time.
 - No new framework to solve a problem stdlib already solves.
-- Ruflo is Codex workflow tooling only, not a Lemonade Store runtime
-  dependency. Use the local built command
-  `node /home/bcloud/ruflo/ruflo/bin/ruflo.js ...` when coordinating
-  agents for this repo; do not add `ruflo` or `npx ruflo` to product
-  code paths.
 - Treat user text as **untrusted input** the moment it enters a model
   path. The store envelope's `payload` is *opaque* to the envelope
   validator on purpose: department code is responsible for whatever
   schemas it places inside.
 - If a model is unreachable, the system continues. Drafts are
   acceptable; silent retries are not.
+
+
+- Treat Karpathy's LLM Wiki pattern as governing law for durable agent memory: https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f. Update `docs/wiki/` whenever work reveals durable architecture, workflow, gotcha, or onboarding knowledge.
+
+## OpenSpec Department Standard
+
+Use `openspec/` for every department-level change before implementation:
+
+1. Create or update a change folder under `openspec/changes/<change-id>/`.
+2. Record the department, affected event types, approval gates, and repo boundaries.
+3. Keep specs in `openspec/specs/<department>/spec.md` aligned with `docs/DEPARTMENTS.md` and `src/lemonade_store/departments.py`.
+4. Implementation work must reference the change `tasks.md` and update it as tasks complete.
+5. Archive completed changes only after tests and owner/review approval are recorded.
+
+The canonical department registry remains `src/lemonade_store/departments.py`. OpenSpec files explain intent and workflow; they do not override the Python registry.
 
 ## Definition of done for any change
 
@@ -120,3 +130,15 @@ rejected unless the frontier is reliably green.
 
 See [`docs/SPEC.md`](docs/SPEC.md) and
 [`docs/DEPARTMENTS.md`](docs/DEPARTMENTS.md) for the full rationale.
+
+## GitHub / OpenSpec / LLM Wiki Standard
+
+Treat Karpathy's LLM Wiki pattern as governing law for durable agent memory: https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
+
+- `docs/wiki/` is the durable project memory for architecture, decisions, gotchas, and onboarding.
+- `AGENTS.md` is the agent instruction schema.
+- `openspec/` is the structured change/spec layer.
+- Start non-trivial work with `openspec/changes/<change-id>/proposal.md`.
+- Track implementation in `openspec/changes/<change-id>/tasks.md`.
+- Update `docs/wiki/` whenever work reveals durable repo knowledge future agents need.
+- Keep changes surgical, simple, and verified by repo-native checks.
