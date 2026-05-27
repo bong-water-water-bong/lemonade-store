@@ -69,13 +69,13 @@ The full list is in [`AGENTS.md`](AGENTS.md).
 | Department | Repo | Owns |
 | --- | --- | --- |
 | `cashier` | [lemonade-cashier](https://github.com/bong-water-water-bong/lemonade-cashier) | checkout, cash, CIT, receipts, audit/replay, barter records |
-| `inventory` | `lemonade-inventory` | product catalog, SKU aliases, stock counts, categories, soil |
-| `accounting` | `lemonade-accounting` | daily close, cash reconciliation, CIT reconciliation, CSV exports |
-| `marketeer` | `lemonade-marketeer` | organic post drafts, promotion calendar, website copy drafts |
-| `supplier` | `lemonade-supplier` | supplier catalog, purchase orders, reorder suggestions |
-| `reports` | `lemonade-reports` | end-of-day summaries, weekly digest, exceptions |
-| `security` | `lemonade-security` | local policy checks, agent audits, AIBOM manifests, privacy findings |
-| `site` | `lemonade-site` | public website, Cloudflare Pages deploy guide |
+| `inventory` | [lemonade-inventory](https://github.com/bong-water-water-bong/lemonade-inventory) | product catalog, SKU aliases, stock counts, categories, soil |
+| `accounting` | [lemonade-accounting](https://github.com/bong-water-water-bong/lemonade-accounting) | daily close, cash reconciliation, CIT reconciliation, CSV exports |
+| `marketeer` | [lemonade-marketeer](https://github.com/bong-water-water-bong/lemonade-marketeer) | organic post drafts, promotion calendar, website copy drafts |
+| `supplier` | [lemonade-supplier](https://github.com/bong-water-water-bong/lemonade-supplier) | supplier catalog, purchase orders, reorder suggestions |
+| `reports` | [lemonade-reports](https://github.com/bong-water-water-bong/lemonade-reports) | end-of-day summaries, weekly digest, exceptions |
+| `security` | [lemonade-security](https://github.com/bong-water-water-bong/lemonade-security) | local policy checks, agent audits, AIBOM manifests, privacy findings |
+| `site` | [lemonade-site](https://github.com/bong-water-water-bong/lemonade-site) | public website, Cloudflare Pages deploy guide |
 
 See [`docs/DEPARTMENTS.md`](docs/DEPARTMENTS.md) for the full contracts.
 
