@@ -4,6 +4,10 @@
 > defines the shared event envelope and department boundaries, but it is not
 > the Lemonade App runtime and it does not launch `lemond`.
 
+## Subprocess Integrations & lemond_process
+
+Although `lemonade-store` is a specs-only repository, the cashier subsystem itself is integrated with an embedded subprocess manager (`lemond_process.py`) running on local port `13400` that handles local LLM-assisted parsing. During environment initialization, `setup_lemond.sh` is executed to pull and configure the necessary embeddable resources (such as offline model files).
+
 ## Overview
 
 Lemonade Store is designed as the project/spec home for a family of
