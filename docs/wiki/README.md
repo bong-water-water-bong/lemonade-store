@@ -59,3 +59,12 @@ For this project, that means:
 - Agents must update the wiki when they learn durable repo knowledge that future agents need.
 
 Keep wiki entries concise, factual, and linked back to concrete files, specs, or test evidence.
+
+## Wiki Pages
+
+- [[architecture]] — High-level architecture, event envelopes, and configurations.
+- [[departments]] — Department event namespace constraints and registry rules.
+- [[conventions]] — Python coding style, strict typing, standard library rules, and class design guidelines.
+- [[runbook]] — Commands list, Makefile usage, environment variables, and workstation port numbers.
+- [[agents]] — Safety policies, owner approval gates, privacy bounds, and prohibited development paths.
+
