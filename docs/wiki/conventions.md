@@ -40,6 +40,13 @@
 - **Public API Isolation**: Maintain a clear boundary for the public API by explicitly defining the `__all__` list in `src/lemonade_store/__init__.py`. 
 - **Type Information**: Include a `py.typed` marker file in the package root to indicate the package supports inline type annotations.
 
+## OpenSpec and Change Control
+
+Every department-level change must follow the OpenSpec standard before implementation:
+- Record new or updated department specifications under `openspec/specs/<department>/spec.md`.
+- File a proposal under `openspec/changes/<change-id>/proposal.md` and track execution tasks in `tasks.md`.
+- Registry definitions in `src/lemonade_store/departments.py` are the canonical machine-readable boundaries.
+
 ## Related
 
 - [[README]] — project wiki entry point
