@@ -10,6 +10,9 @@ Convenience targets are managed via the project `Makefile`. Python 3.11+ is requ
 ```bash
 # Install the package in editable mode with development and documentation extras
 make install
+
+# Optional: install local Lemonade SDK / GAIA agent bridge packages
+make install-agents
 ```
 
 ### Formatting & Linting
@@ -47,6 +50,10 @@ make clean
 
 > [!NOTE]
 > Running `make all` runs `lint type test` sequentially and is the required pre-commit and pre-PR verification command.
+
+`make install` must stay lightweight and must not install model runtime
+packages. Use `make install-agents` only on workstations that need to run
+the local `lemonade-agents` bridge against Lemonade SDK / GAIA.
 
 ---
 

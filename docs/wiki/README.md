@@ -14,6 +14,16 @@ runtime; departments are Podman-packaged plugins.
 - **Local-First / Stdlib-Only**: The contract package (`lemonade_store.*`) imports only the Python standard library to ensure maximum portability and reliability.
 - **Source of Truth**: The `lemonade-cashier` repository is the source of truth for all checkout transactions.
 
+## Runtime Setup
+
+- `lemonade-store` is the suite contract package, not the app runtime.
+- `make install` keeps the base package lightweight: contracts plus
+  development/docs tooling.
+- `make install-agents` is optional and installs `lemonade-agents` for
+  local Lemonade SDK / GAIA bridge work.
+- `lemond` and marketplace lifecycle belong to Lemonade App and
+  `lemonade-marketplace-plugins`, not this repo.
+
 ## Agent Handoff
 - **How to Test**: Run `make test`, `make lint`, and `make type`. Python 3.11+ is required.
 - **Hot Paths**:

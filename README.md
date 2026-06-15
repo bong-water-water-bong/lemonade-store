@@ -2,7 +2,7 @@
 
 [![ci](https://github.com/bong-water-water-bong/lemonade-store/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/bong-water-water-bong/lemonade-store/actions/workflows/ci.yml)
 [![docs](https://github.com/bong-water-water-bong/lemonade-store/actions/workflows/docs.yml/badge.svg?branch=main)](https://github.com/bong-water-water-bong/lemonade-store/actions/workflows/docs.yml)
-[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue)](pyproject.toml)
+[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue)](pyproject.toml)
 [![Cashier](https://img.shields.io/badge/source--of--truth-lemonade--cashier-2ea44f)](https://github.com/bong-water-water-bong/lemonade-cashier)
 [![local-first](https://img.shields.io/badge/local--first-cash--only%20core-2ea44f)](#hard-rules)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -32,6 +32,17 @@ This repo is **v0.1**: docs and contracts only. No agents, app runtime,
 containers, or service launchers are implemented here. Each department
 lives in its own repo and becomes a marketplace plugin package through
 the separate `lemonade-marketplace-plugins` workspace.
+
+## Suite runtime boundary
+
+- `lemonade-store` is the shared contract package and project/spec home.
+  It does not launch `lemond`, bind `13305`, or own plugin lifecycle.
+- `make install` stays lightweight and installs only contracts plus
+  development/docs tooling.
+- `make install-agents` is optional and installs `lemonade-agents` for
+  local Lemonade SDK / GAIA agent bridge work.
+- Department repos consume `lemonade-store@main` for event contracts.
+  Marketplace packaging lives in `lemonade-marketplace-plugins`.
 
 ## What's in this repo
 
