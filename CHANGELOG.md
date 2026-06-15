@@ -14,6 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   AIBOM manifests, privacy findings, and the Lemonade SDK security
   plugin boundary.
 
+### Changed
+
+- Moved `lemonade-agents` behind the optional `agents` extra so the
+  base contract package keeps its no-third-party-runtime-dependencies
+  boundary.
+- Added `.venv`-aware Makefile setup targets for local development.
+
 ## [0.1.0] — 2026-05-19
 
 ### Added

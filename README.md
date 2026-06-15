@@ -125,7 +125,8 @@ make test
 
 `make all` runs `lint`, `type`, and `test`. Python 3.11+ is required.
 There are no third-party dependencies in the runtime package — only
-the dev/docs extras.
+the dev/docs extras. External agent bridge packages are optional and can
+be installed with `make install-agents`.
 
 To load and inspect the Tie Dye Farms example:
 

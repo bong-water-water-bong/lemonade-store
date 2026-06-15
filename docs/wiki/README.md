@@ -29,7 +29,7 @@ runtime; departments are Podman-packaged plugins.
 - **Owner Approval Gates**: Any agent action with public reach (e.g., marketing posts) or financial consequences must be gated by explicit owner approval in the event log.
 - **Privacy Boundary**: No customer card data, audio, or images are to be persisted or processed.
 - **Envelope Validation**: The `payload` of an event is opaque to the envelope validator; individual departments are responsible for internal schema validation.
-- **No Runtime Dependencies**: Do not add third-party dependencies to the runtime package.
+- **No Runtime Dependencies**: Do not add third-party dependencies to the runtime package. External agent bridge packages such as `lemonade-agents`, GAIA, and Torch belong behind the optional `agents` extra so `make install` and contract checks stay lightweight.
 - **No App Runtime Here**: Do not launch `lemond`, bind `13305`, or add app
   service/container files to this repo. Plugin packaging belongs in
   `lemonade-marketplace-plugins`.
@@ -67,4 +67,3 @@ Keep wiki entries concise, factual, and linked back to concrete files, specs, or
 - [[conventions]] — Python coding style, strict typing, standard library rules, and class design guidelines.
 - [[runbook]] — Commands list, Makefile usage, environment variables, and workstation port numbers.
 - [[agents]] — Safety policies, owner approval gates, privacy bounds, and prohibited development paths.
-
