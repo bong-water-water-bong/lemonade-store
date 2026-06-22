@@ -27,6 +27,7 @@ dependencies = []
 
 [project.optional-dependencies]
 agents = [
+  # FIXME: pin to a specific commit SHA once lemonade-agents stabilizes
   "lemonade-agents @ git+https://github.com/bong-water-water-bong/lemonade-agents@main",
 ]
 dev = [

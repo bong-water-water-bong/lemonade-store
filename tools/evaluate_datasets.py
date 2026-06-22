@@ -18,6 +18,9 @@ from pathlib import Path
 from typing import Any
 
 DEFAULT_SERVER_URL = "http://127.0.0.1:13305"
+# Set this to an HTTPS URL when connecting to a remote server to avoid
+# sending synthetic store data in cleartext.
+DEFAULT_SECURE_SERVER_URL = "https://127.0.0.1:13305"
 DEFAULT_DATASETS = (
     "cashier_events.jsonl",
     "security_events.jsonl",
@@ -100,6 +103,10 @@ def call_model(server_url: str, model: str, row: DatasetRow, timeout: float) -> 
         headers={"Content-Type": "application/json"},
         method="POST",
     )
+    # Warn if sending data over cleartext to a remote host
+    if url.startswith("http://") and "127.0.0.1" not in url and "localhost" not in url:
+        print(f"[warn] Sending store data to remote server over HTTP (not HTTPS): {url}",
+              file=sys.stderr)
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
             payload = json.loads(response.read().decode("utf-8"))
@@ -264,7 +271,9 @@ def run_evaluation(
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", required=True, help="Lemonade model id, e.g. Bonsai-8B-gguf")
-    parser.add_argument("--server-url", default=DEFAULT_SERVER_URL)
+    parser.add_argument("--server-url", default=DEFAULT_SERVER_URL,
+                        help=f"Model server URL (default: {DEFAULT_SERVER_URL}). "
+                             "Use HTTPS for remote servers to avoid cleartext data.")
     parser.add_argument(
         "--dataset-dir",
         type=Path,

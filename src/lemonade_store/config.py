@@ -13,6 +13,7 @@ third-party deps in the contracts package.
 
 from __future__ import annotations
 
+import re
 import tomllib
 from collections.abc import Iterable
 from dataclasses import dataclass, field
@@ -39,6 +40,7 @@ _REQUIRED_KEYS: tuple[str, ...] = (
     "categories",
 )
 
+_STORE_ID_RE = re.compile(r"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$")
 _ALLOWED_PAYMENT_CORE: frozenset[str] = frozenset({"cash_only"})
 _ALLOWED_BARTER: frozenset[str] = frozenset({"allowed_with_approval", "not_allowed"})
 _ALLOWED_CLOUDFLARE: frozenset[str] = frozenset({"website_only", "off"})
@@ -87,6 +89,13 @@ def load_store_config(path: str | Path) -> StoreConfig:
             raise ConfigValidationError(
                 f"{scalar} must be a string, got {type(data[scalar]).__name__}"
             )
+
+    store_id = data["store_id"]
+    if not isinstance(store_id, str) or not _STORE_ID_RE.match(store_id):
+        raise ConfigValidationError(
+            f"store_id={store_id!r} must be a lowercase alphanumeric string "
+            f"(hyphens allowed, cannot start/end with one)"
+        )
 
     payment_core = data["payment_core"]
     if payment_core not in _ALLOWED_PAYMENT_CORE:

@@ -13,7 +13,8 @@ jobs:
       contents: read
     steps:
       - name: Qodo Merge Review
-        uses: qodo-ai/qodo-merge@main
+        # Pinned to v1 stable branch. For stricter pinning, replace with a commit SHA.
+        uses: qodo-ai/qodo-merge@v1
         env:
           QODO_API_KEY: ${{ secrets.QODO_API_KEY }}
         with:

@@ -94,8 +94,9 @@ run_scan() {
     "total": $total_issues
   },
   "cves": {
-    "tracked": ["CVE-1", "CVE-2", "CVE-3"],
-    "remediated": 3
+    "tracked": [],
+    "remediated": 0,
+    "_note": "cve tracking not yet implemented — placeholder"
   }
 }
 EOF
