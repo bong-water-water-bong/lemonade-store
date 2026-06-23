@@ -23,8 +23,10 @@ Design notes worth remembering:
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass, field
+from datetime import datetime
 from typing import Any
 
 from lemonade_store.departments import KNOWN_DEPARTMENTS, registry
@@ -35,6 +37,14 @@ SCHEMA_VERSION = "store.event.v1"
 # into. `store.*` is for envelope-level meta-events, `audit.*` is for
 # cross-cutting audit trail entries. Keep this list short on purpose.
 _META_NAMESPACES: frozenset[str] = frozenset({"store", "audit"})
+
+# ISO-8601 with optional fractional seconds and mandatory timezone.
+# Accepts Z, ±HH:MM, or ±HHMM offsets. Constrained to UTC-aware
+# timestamps only (no naive datetimes cross the envelope).
+_ISO8601_RE = re.compile(
+    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?"
+    r"(Z|[+-]\d{2}:\d{2}|[+-]\d{4})$"
+)
 
 _REQUIRED_FIELDS: tuple[str, ...] = (
     "schema_version",
@@ -115,12 +125,43 @@ def _validate_event(event: Event) -> None:
             f"event type {event.type!r} is not namespaced (expected 'department.foo.bar')"
         )
 
+    # Validate the timestamp is ISO-8601 with timezone.
+    # The envelope contract requires UTC-aware timestamps; naive
+    # datetimes or unparseable strings are rejected at the boundary.
+    if not _ISO8601_RE.match(event.ts):
+        raise EventValidationError(
+            f"ts={event.ts!r} must be ISO-8601 with timezone offset "
+            f"(e.g. '2026-05-19T18:30:00Z' or '2026-05-19T18:30:00+00:00')"
+        )
+    try:
+        parsed = datetime.fromisoformat(event.ts.replace("Z", "+00:00"))
+        if parsed.tzinfo is None:
+            raise EventValidationError(
+                f"ts={event.ts!r} must include a timezone offset "
+                f"(e.g. 'Z', '+00:00', or '-05:00')"
+            )
+    except (ValueError, TypeError) as exc:
+        raise EventValidationError(
+            f"ts={event.ts!r} is not a valid ISO-8601 datetime: {exc}"
+        ) from exc
+
     event_ns = _namespace_of(event.type)
-    dept_ns = registry()[event.department].namespace
+    dept = registry()[event.department]
+    dept_ns = dept.namespace
     if event_ns != dept_ns and event_ns not in _META_NAMESPACES:
         raise EventValidationError(
             f"event type {event.type!r} is in namespace {event_ns!r}, "
             f"but department {event.department!r} owns namespace {dept_ns!r}"
+        )
+
+    # Validate that the specific event type is declared in the
+    # department's `emits` tuple. A department cannot emit an event
+    # type it never declared — this closes the gap between "namespace
+    # matches" and "event type is registered."
+    if event.type not in dept.emits:
+        raise EventValidationError(
+            f"event type {event.type!r} is not in the emit list of "
+            f"department {event.department!r} (declared emits: {sorted(dept.emits)})"
         )
 
     # Approval pair semantics:

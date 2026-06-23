@@ -209,10 +209,13 @@ class TestKnownDepartmentsAreReachable:
     def test_each_known_department_can_emit_a_v1_event(self, dept: str) -> None:
         from lemonade_store.departments import registry
 
-        namespace = registry()[dept].namespace
+        dept_info = registry()[dept]
+        namespace = dept_info.namespace
+        # Use a real emit type from the registry, not a synthetic heartbeat.
+        event_type = dept_info.emits[0]
         payload = _valid_payload()
         payload["department"] = dept
-        payload["type"] = f"{namespace}.heartbeat"
+        payload["type"] = event_type
         payload["source"] = f"lemonade-{dept}"
         event = load_event(payload)
         assert event.department == dept
@@ -263,3 +266,72 @@ class TestApprovalHelpers:
             event = self._make_event(requires_approval=req, approved_by=appr)
             states = [event.is_auto(), event.is_draft(), event.is_approved()]
             assert sum(states) == 1, f"expected exactly one True for {req=} {appr=}, got {states}"
+
+
+class TestTimestampValidation:
+    """ISO-8601 timestamp validation added in v0.1 audit fixes."""
+
+    def test_utc_z_suffix_accepted(self) -> None:
+        payload = _valid_payload()
+        payload["ts"] = "2026-05-19T18:30:00Z"
+        event = load_event(payload)
+        assert event.ts == "2026-05-19T18:30:00Z"
+
+    def test_offset_colon_accepted(self) -> None:
+        payload = _valid_payload()
+        payload["ts"] = "2026-05-19T18:30:00+00:00"
+        event = load_event(payload)
+        assert event.ts == "2026-05-19T18:30:00+00:00"
+
+    def test_negative_offset_accepted(self) -> None:
+        payload = _valid_payload()
+        payload["ts"] = "2026-05-19T13:30:00-05:00"
+        event = load_event(payload)
+        assert event.ts == "2026-05-19T13:30:00-05:00"
+
+    def test_fractional_seconds_accepted(self) -> None:
+        payload = _valid_payload()
+        payload["ts"] = "2026-05-19T18:30:00.123456Z"
+        event = load_event(payload)
+        assert event.ts == "2026-05-19T18:30:00.123456Z"
+
+    def test_offset_no_colon_accepted(self) -> None:
+        payload = _valid_payload()
+        payload["ts"] = "2026-05-19T18:30:00+0000"
+        event = load_event(payload)
+        assert event.ts == "2026-05-19T18:30:00+0000"
+
+    @pytest.mark.parametrize(
+        "bad_ts",
+        [
+            "2026-05-19",  # date only, no time
+            "2026-05-19T18:30:00",  # no timezone
+            "yesterday afternoon",  # not a timestamp
+            "18:30:00",  # time only
+            "2026/05/19T18:30:00Z",  # wrong separator
+        ],
+    )
+    def test_invalid_timestamp_rejected(self, bad_ts: str) -> None:
+        payload = _valid_payload()
+        payload["ts"] = bad_ts
+        with pytest.raises(EventValidationError):
+            load_event(payload)
+
+    def test_naive_datetime_rejected(self) -> None:
+        # ISO-8601 without timezone passes regex but tzinfo will be None
+        payload = _valid_payload()
+        payload["ts"] = "2026-05-19T18:30:00"
+        with pytest.raises(EventValidationError):
+            load_event(payload)
+
+
+class TestEmitRegistryValidation:
+    """Event type must be declared in the department's emits tuple."""
+
+    def test_event_type_not_in_emits_rejected(self) -> None:
+        # cashier.transaction.unknown is in cashier namespace but not in emits
+        payload = _valid_payload()
+        payload["type"] = "cashier.transaction.unknown"
+        with pytest.raises(EventValidationError) as exc:
+            load_event(payload)
+        assert "not in the emit list" in str(exc.value)
