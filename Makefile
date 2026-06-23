@@ -52,3 +52,14 @@ clean:
 	rm -rf build dist .pytest_cache .ruff_cache .mypy_cache
 	find . -name '__pycache__' -type d -exec rm -rf {} +
 	find . -name '*.egg-info' -type d -exec rm -rf {} +
+
+# Run pre-push checks locally (same as PR-Agent would flag)
+pre-push:
+	@echo "=== ruff ==="
+	$(PYTHON) -m ruff check src tests
+	$(PYTHON) -m ruff format --check src tests
+	@echo "=== mypy ==="
+	$(PYTHON) -m mypy
+	@echo "=== pytest ==="
+	$(PYTHON) -m pytest
+	@echo "✅ pre-push checks passed."
