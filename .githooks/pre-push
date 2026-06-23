@@ -1,7 +1,26 @@
 #!/bin/bash
 # Pre-push guard: runs lint + type + test before allowing push.
-# This is what PR-Agent would flag — catch it locally first.
+# Same checks PR-Agent would flag in CI — catch them locally first.
+# Skips gracefully if tools aren't installed (run 'make install' first).
 set -e
+
+MISSING=0
+check_tool() {
+  python3 -c "import $1" 2>/dev/null && return 0
+  echo "⚠ $1 not installed"
+  MISSING=1
+  return 1
+}
+
+check_tool ruff || true
+check_tool mypy || true
+check_tool pytest || true
+
+if [ "$MISSING" = "1" ]; then
+  echo "⚠ Skipping pre-push checks (run 'make install' to enable)."
+  echo "   CI workflows + PR-Agent will still catch issues on the PR."
+  exit 0
+fi
 
 echo "=== pre-push: ruff check ==="
 python3 -m ruff check src tests || { echo "❌ ruff failed. Fix and retry."; exit 1; }
