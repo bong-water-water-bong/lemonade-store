@@ -151,6 +151,47 @@ for name, dept in registry().items():
     print(name, "->", dept.repo, "emits", dept.emits)
 ```
 
+## Internal Web UI (POS + Inventory)
+
+The suite includes an offline web interface for daily operations — no
+internet required, runs entirely on the local workstation.
+
+```sh
+# Install agents with web UI
+make install-agents
+pip install -e ".[web]" -C lemonade-agents
+
+# Start the internal web server
+lemonade-serve
+
+# Open in browser:
+#   http://127.0.0.1:8000           — Point of Sale
+#   http://127.0.0.1:8000/inventory — Product onboarding
+#   http://127.0.0.1:8000/dashboard — Owner dashboard
+```
+
+The web UI runs on **FastAPI** and stores data locally in
+`~/.lemonade/data/`. No cloud, no npm, no build step. Cameras will be
+added in a future release.
+
+### Department agents
+
+Each department has a CLI agent powered by GAIA on the AMD NPU:
+
+```sh
+lemonade-cashier   "show today's sales"
+lemonade-inventory "what products are low on stock?"
+lemonade-accounting "run daily close for 2026-06-23"
+lemonade-supplier  "draft purchase order for low stock items"
+lemonade-marketeer "suggest a promotion for soil products"
+lemonade-reports   "generate weekly summary"
+lemonade-security  "audit the last 100 events"
+lemonade-helper    "what department handles purchase orders?"
+```
+
+See [lemonade-agents](https://github.com/bong-water-water-bong/lemonade-agents)
+for the full agent documentation.
+
 ## Public website (Cloudflare Pages)
 
 Each store gets a small public website hosted on **Cloudflare Pages**
@@ -162,7 +203,8 @@ for the step-by-step launch path.
 ## Status
 
 - v0.1: docs + contracts + Tie Dye Farms example.
-- Current reset: departments are plugin source repos only.
+- All 8 department repos live with agent implementations.
+- Internal web UI (POS + inventory + dashboard) ships with lemonade-agents.
 - Runtime packaging belongs in `lemonade-marketplace-plugins`.
 - All plugins are Podman packages wired through `lemond`.
 - See [`docs/BUILD_ORDER.md`](docs/BUILD_ORDER.md) for what comes when.
