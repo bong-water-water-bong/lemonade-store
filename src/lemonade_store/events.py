@@ -135,15 +135,15 @@ def _validate_event(event: Event) -> None:
         )
     try:
         parsed = datetime.fromisoformat(event.ts.replace("Z", "+00:00"))
-        if parsed.tzinfo is None:
-            raise EventValidationError(
-                f"ts={event.ts!r} must include a timezone offset "
-                f"(e.g. 'Z', '+00:00', or '-05:00')"
-            )
     except (ValueError, TypeError) as exc:
         raise EventValidationError(
             f"ts={event.ts!r} is not a valid ISO-8601 datetime: {exc}"
         ) from exc
+    if parsed.tzinfo is None:
+        raise EventValidationError(
+            f"ts={event.ts!r} must include a timezone offset "
+            f"(e.g. 'Z', '+00:00', or '-05:00')"
+        )
 
     event_ns = _namespace_of(event.type)
     dept = registry()[event.department]

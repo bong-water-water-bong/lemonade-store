@@ -210,7 +210,6 @@ class TestKnownDepartmentsAreReachable:
         from lemonade_store.departments import registry
 
         dept_info = registry()[dept]
-        namespace = dept_info.namespace
         # Use a real emit type from the registry, not a synthetic heartbeat.
         event_type = dept_info.emits[0]
         payload = _valid_payload()
