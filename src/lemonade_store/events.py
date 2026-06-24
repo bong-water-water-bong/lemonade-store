@@ -141,8 +141,7 @@ def _validate_event(event: Event) -> None:
         ) from exc
     if parsed.tzinfo is None:
         raise EventValidationError(
-            f"ts={event.ts!r} must include a timezone offset "
-            f"(e.g. 'Z', '+00:00', or '-05:00')"
+            f"ts={event.ts!r} must include a timezone offset (e.g. 'Z', '+00:00', or '-05:00')"
         )
 
     event_ns = _namespace_of(event.type)
