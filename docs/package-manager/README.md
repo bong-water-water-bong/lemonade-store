@@ -33,6 +33,12 @@ lemonade disable reports
 lemonade enable reports
 ```
 
+## What is in the complete package now
+
+- `lemonade-store` owns the package-manager engine, CLI, catalog, profiles, manifest validation, artifact hashing, install state, status, enable/disable, and safe uninstall planning.
+- `lemonade-admin` exists as the dedicated internal-only admin/help-center package and uses `lemonade-store` package-manager semantics.
+- Full operator/admin/developer docs are included under `docs/package-manager/`.
+
 ## Documentation map
 
 - [Operator guide](operator-guide.md)

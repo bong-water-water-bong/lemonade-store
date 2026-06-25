@@ -41,6 +41,10 @@ the separate `lemonade-marketplace-plugins` workspace.
   development/docs tooling.
 - `make install-agents` is optional and installs `lemonade-agents` for
   local Lemonade SDK / GAIA agent bridge work.
+- `lemonade` is the offline/internal package-manager CLI for selecting
+  department and agent packages from USB bundles or LAN mirrors.
+- `lemonade-admin` is the dedicated internal-only POS/admin/help-center
+  package and uses the package-manager engine from this repo.
 - Department repos consume `lemonade-store@main` for event contracts.
   Marketplace packaging lives in `lemonade-marketplace-plugins`.
 
@@ -191,6 +195,28 @@ lemonade-helper    "what department handles purchase orders?"
 
 See [lemonade-agents](https://github.com/bong-water-water-bong/lemonade-agents)
 for the full agent documentation.
+
+## Package manager and internal admin
+
+After installing `lemonade-store`, use the `lemonade` CLI to choose departments
+and agents from an offline USB bundle or LAN mirror:
+
+```sh
+lemonade list
+lemonade plan --profile store-operations
+lemonade install --profile store-operations --manifest /path/to/lemonade-bundle.toml
+lemonade status
+```
+
+The recommended `store-operations` profile installs cashier, inventory,
+accounting, reports, and security. Marketing/site packages are optional and are
+not enabled by default.
+
+The internal web/admin shell lives in
+[`lemonade-admin`](https://github.com/bong-water-water-bong/lemonade-admin).
+It owns the local Help Center and package wizard UI while this repo owns the
+package-manager engine. See [`docs/package-manager/`](docs/package-manager/README.md)
+for the full operator/admin/developer documentation suite.
 
 ## Public website (Cloudflare Pages)
 

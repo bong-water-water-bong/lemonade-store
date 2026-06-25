@@ -48,6 +48,7 @@ docs = [
 Homepage = "https://github.com/bong-water-water-bong/lemonade-store"
 Issues = "https://github.com/bong-water-water-bong/lemonade-store/issues"
 Cashier = "https://github.com/bong-water-water-bong/lemonade-cashier"
+Admin = "https://github.com/bong-water-water-bong/lemonade-admin"
 
 [tool.setuptools.packages.find]
 where = ["src"]
