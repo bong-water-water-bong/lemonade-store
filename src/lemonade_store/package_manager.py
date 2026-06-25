@@ -368,9 +368,10 @@ class PackageManager:
         profile: str | None = DEFAULT_PROFILE,
         departments: Iterable[str] = (),
         agents: Iterable[str] = (),
+        signature_key_path: str | Path | None = None,
     ) -> InstallResult:
         selection = resolve_selection(profile=profile, departments=departments, agents=agents)
-        manifest = load_manifest(manifest_path)
+        manifest = load_manifest(manifest_path, signature_key_path=signature_key_path)
         catalog = build_catalog()
         state = InstallState.load(self.state_path)
 

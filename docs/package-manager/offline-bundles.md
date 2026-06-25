@@ -47,11 +47,24 @@ accepts wheels whose distribution name is in the Lemonade catalog. A complete,
 self-contained example lives in
 [`examples/offline-bundle/`](../../examples/offline-bundle/README.md).
 
+## Installing a signed bundle
+
+```sh
+lemonade install \
+  --profile store-operations \
+  --manifest /media/usb/lemonade-bundle.toml \
+  --key /path/to/bundle.key
+```
+
+`--key` verifies the HMAC signature before any artifact is handed to pip. Normal
+store operation should use signed manifests. Unsigned placeholder manifests are
+for explicit development/testing only.
+
 ## Security rules
 
 - Public `http://` and `https://` artifact URLs are rejected.
 - Every artifact hash must match the manifest.
-- The manifest carries a signature field.
+- The manifest carries a signature field; normal installs should pass `--key` so the signature is verified before installation.
 - Unsigned/developer placeholder bundles are for development only, not normal store operation.
 
 ## LAN mirrors

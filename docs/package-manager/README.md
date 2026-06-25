@@ -27,7 +27,7 @@ Marketing and public-site packages are optional and disabled by default.
 lemonade build-bundle --wheels ./wheels --out ./lemonade-bundle.toml --suite-version 0.1.0 --source usb
 lemonade list
 lemonade plan --profile store-operations
-lemonade install --profile store-operations --manifest /media/usb/lemonade-bundle.toml
+lemonade install --profile store-operations --manifest /media/usb/lemonade-bundle.toml --key /path/to/bundle.key
 lemonade status
 lemonade uninstall-plan reports
 lemonade disable reports
@@ -35,7 +35,7 @@ lemonade enable reports
 ```
 
 `build-bundle` is the maintainer side (assemble an offline bundle from wheels);
-the rest are the operator/admin side (install and manage from that bundle).
+the rest are the operator/admin side (verify, install, and manage from that bundle).
 
 ## What is in the complete package now
 

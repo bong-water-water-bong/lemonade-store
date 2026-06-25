@@ -47,6 +47,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         type=Path,
         help="Path to lemonade-bundle.toml in the local bundle or LAN mirror.",
     )
+    install_parser.add_argument(
+        "--key",
+        type=Path,
+        default=None,
+        help="Optional local key file used to verify the manifest signature.",
+    )
 
     disable_parser = subparsers.add_parser("disable", help="Disable an installed package")
     disable_parser.add_argument("name")
@@ -101,6 +107,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 profile=args.profile,
                 departments=args.department,
                 agents=args.agent,
+                signature_key_path=args.key,
             )
             print(_format_selection(result.package_names, result.distributions))
             print(f"state: {result.state_path}")
