@@ -49,6 +49,26 @@ def test_build_bundle_signs_manifest_when_key_given(tmp_path: Path):
     assert loaded.signature.startswith("hmac-sha256:")
 
 
+def test_build_bundle_accepts_bootstrap_store_and_admin_wheels(tmp_path: Path):
+    wheels = tmp_path / "wheels"
+    wheels.mkdir()
+    (wheels / "lemonade_store-0.1.0-py3-none-any.whl").write_bytes(b"store wheel")
+    (wheels / "lemonade_admin-0.1.0-py3-none-any.whl").write_bytes(b"admin wheel")
+    (wheels / "lemonade_cashier-0.1.0-py3-none-any.whl").write_bytes(b"cashier wheel")
+
+    manifest_path = build_bundle(
+        wheels_dir=wheels,
+        out_path=tmp_path / "lemonade-bundle.toml",
+        suite_version="0.1.0",
+        source="usb",
+    )
+
+    loaded = load_manifest(manifest_path)
+    assert set(loaded.packages) == {"lemonade-store", "lemonade-admin", "lemonade-cashier"}
+    assert loaded.packages["lemonade-store"].name == "store-base"
+    assert loaded.packages["lemonade-admin"].name == "admin"
+
+
 def test_build_bundle_rejects_unrecognized_distribution(tmp_path: Path):
     wheels = tmp_path / "wheels"
     wheels.mkdir()

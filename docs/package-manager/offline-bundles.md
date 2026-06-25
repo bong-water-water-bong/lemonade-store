@@ -2,12 +2,19 @@
 
 The package manager installs from a local manifest named `lemonade-bundle.toml`.
 
+The bundle may also include bootstrap wheels for `lemonade-store` and
+`lemonade-admin`. Those are not department packages selected by the package
+manager, but including them lets one USB/LAN bundle seed a fresh offline
+machine before department install begins.
+
 ## Bundle shape
 
 ```text
 lemonade-bundle/
   lemonade-bundle.toml
   wheels/
+    lemonade_store-0.1.0-py3-none-any.whl
+    lemonade_admin-0.1.0-py3-none-any.whl
     lemonade_cashier-0.1.0-py3-none-any.whl
     lemonade_inventory-0.1.0-py3-none-any.whl
 ```
@@ -42,9 +49,10 @@ lemonade build-bundle \
 ```
 
 Add `--key /path/to/bundle.key` to sign the manifest with a local maintainer key
-(recommended for real stores). The builder computes every artifact hash and only
-accepts wheels whose distribution name is in the Lemonade catalog. A complete,
-self-contained example lives in
+(recommended for real stores). The builder accepts known department/agent
+distributions plus the bootstrap `lemonade-store` and `lemonade-admin` wheels.
+It rejects unknown distributions so typos or unrelated artifacts do not silently
+enter the offline release. A complete, self-contained example lives in
 [`examples/offline-bundle/`](../../examples/offline-bundle/README.md).
 
 ## Installing a signed bundle

@@ -20,14 +20,21 @@ from lemonade_store.package_manager import (
     sign_manifest_payload,
 )
 
+BOOTSTRAP_DISTRIBUTIONS = {
+    "lemonade-store": "store-base",
+    "lemonade-admin": "admin",
+}
+
 
 class BundleBuildError(ValueError):
     """Raised when an offline bundle cannot be assembled from local wheels."""
 
 
 def known_distributions() -> frozenset[str]:
-    """Return every distribution name the catalog can install."""
-    return frozenset(pkg.distribution for pkg in build_catalog().packages.values())
+    """Return every distribution name the catalog/bootstrap bundle can include."""
+    return frozenset(pkg.distribution for pkg in build_catalog().packages.values()) | frozenset(
+        BOOTSTRAP_DISTRIBUTIONS
+    )
 
 
 def _distribution_from_wheel(filename: str) -> str:
@@ -132,6 +139,8 @@ def _name_for_distribution(distribution: str) -> str:
     Uses the catalog's department/agent name where the distribution maps to a
     single department; otherwise falls back to the distribution name.
     """
+    if distribution in BOOTSTRAP_DISTRIBUTIONS:
+        return BOOTSTRAP_DISTRIBUTIONS[distribution]
     catalog = build_catalog()
     for pkg in catalog.packages.values():
         if pkg.distribution == distribution and pkg.kind == "department":
