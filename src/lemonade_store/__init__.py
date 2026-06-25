@@ -32,9 +32,23 @@ from lemonade_store.events import (
     dump_event,
     load_event,
 )
+from lemonade_store.package_manager import (
+    DEFAULT_PROFILE,
+    Catalog,
+    CatalogError,
+    PackageManager,
+    Selection,
+    build_catalog,
+    resolve_selection,
+)
 
 __all__ = [
+    "DEFAULT_PROFILE",
+    "Catalog",
+    "CatalogError",
+    "PackageManager",
     "SCHEMA_VERSION",
+    "Selection",
     "Actor",
     "ConfigValidationError",
     "Department",
@@ -48,6 +62,8 @@ __all__ = [
     "load_event",
     "load_store_config",
     "registry",
+    "build_catalog",
+    "resolve_selection",
 ]
 
 __version__ = "0.1.0"

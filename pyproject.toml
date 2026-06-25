@@ -25,6 +25,9 @@ classifiers = [
 ]
 dependencies = []
 
+[project.scripts]
+lemonade = "lemonade_store.cli:main"
+
 [project.optional-dependencies]
 agents = [
   # FIXME: pin to a specific commit SHA once lemonade-agents stabilizes
