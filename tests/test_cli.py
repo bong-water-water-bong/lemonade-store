@@ -49,3 +49,29 @@ def test_cli_status_and_uninstall_plan_use_state_file(tmp_path: Path, capsys, mo
     captured = capsys.readouterr()
     assert code == 2
     assert "unknown package 'badger'" in captured.err
+
+
+def test_cli_build_bundle_creates_loadable_manifest(tmp_path: Path, capsys):
+    wheels = tmp_path / "wheels"
+    wheels.mkdir()
+    (wheels / "lemonade_cashier-0.1.0-py3-none-any.whl").write_bytes(b"cashier wheel")
+    out = tmp_path / "lemonade-bundle.toml"
+
+    code = main(
+        [
+            "build-bundle",
+            "--wheels",
+            str(wheels),
+            "--out",
+            str(out),
+            "--suite-version",
+            "0.1.0",
+            "--source",
+            "usb",
+        ]
+    )
+
+    assert code == 0
+    assert out.exists()
+    output = capsys.readouterr().out
+    assert "lemonade-cashier" in output

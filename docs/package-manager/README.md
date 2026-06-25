@@ -24,6 +24,7 @@ Marketing and public-site packages are optional and disabled by default.
 ## Commands
 
 ```sh
+lemonade build-bundle --wheels ./wheels --out ./lemonade-bundle.toml --suite-version 0.1.0 --source usb
 lemonade list
 lemonade plan --profile store-operations
 lemonade install --profile store-operations --manifest /media/usb/lemonade-bundle.toml
@@ -33,9 +34,13 @@ lemonade disable reports
 lemonade enable reports
 ```
 
+`build-bundle` is the maintainer side (assemble an offline bundle from wheels);
+the rest are the operator/admin side (install and manage from that bundle).
+
 ## What is in the complete package now
 
-- `lemonade-store` owns the package-manager engine, CLI, catalog, profiles, manifest validation, artifact hashing, install state, status, enable/disable, and safe uninstall planning.
+- `lemonade-store` owns the package-manager engine, CLI, catalog, profiles, offline **bundle building**, manifest validation, artifact hashing, install state, status, enable/disable, and safe uninstall planning.
+- A complete, runnable example bundle lives in [`examples/offline-bundle/`](../../examples/offline-bundle/README.md).
 - `lemonade-admin` exists as the dedicated internal-only admin/help-center package and uses `lemonade-store` package-manager semantics.
 - Full operator/admin/developer docs are included under `docs/package-manager/`.
 

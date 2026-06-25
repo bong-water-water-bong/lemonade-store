@@ -21,11 +21,19 @@ Developer details are separated from operator/admin docs. This section is for ma
 
 ## Release process
 
-1. Build wheels for selected repos in a clean environment.
-2. Compute `sha256:<digest>` for each artifact.
-3. Write `lemonade-bundle.toml`.
-4. Sign the manifest with the store-maintainer key workflow.
-5. Verify with `lemonade plan` and a test install on a disposable local environment.
+1. Build wheels for selected repos in a clean environment into a `wheels/` dir.
+2. Generate and sign the manifest in one step:
+
+   ```sh
+   lemonade build-bundle --wheels ./wheels --out ./lemonade-bundle.toml \
+     --suite-version <version> --source usb --key /path/to/bundle.key
+   ```
+
+   The builder computes every `sha256:<digest>`, rejects unknown distributions,
+   and signs the manifest with the same HMAC scheme the loader verifies.
+3. Verify with `lemonade plan` and a test install on a disposable local environment.
+4. Distribute the `wheels/` dir plus `lemonade-bundle.toml` together on the USB
+   bundle or LAN mirror.
 
 ## Future work
 

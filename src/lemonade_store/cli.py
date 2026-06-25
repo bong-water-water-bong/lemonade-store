@@ -8,12 +8,14 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
+from lemonade_store.bundle import BundleBuildError, build_bundle
 from lemonade_store.package_manager import (
     DEFAULT_PROFILE,
     CatalogError,
     ManifestError,
     PackageManager,
     build_catalog,
+    load_manifest,
     resolve_selection,
 )
 
@@ -58,6 +60,23 @@ def main(argv: Sequence[str] | None = None) -> int:
         "uninstall-plan", help="Show safe uninstall steps without deleting data"
     )
     uninstall_plan_parser.add_argument("name")
+
+    bundle_parser = subparsers.add_parser(
+        "build-bundle", help="Build a lemonade-bundle.toml manifest from local wheels"
+    )
+    bundle_parser.add_argument(
+        "--wheels", required=True, type=Path, help="Directory of .whl files."
+    )
+    bundle_parser.add_argument(
+        "--out", required=True, type=Path, help="Output manifest path (lemonade-bundle.toml)."
+    )
+    bundle_parser.add_argument("--suite-version", required=True, help="Suite version label.")
+    bundle_parser.add_argument(
+        "--source", default="usb", help="Bundle source label (e.g. usb, lan-mirror)."
+    )
+    bundle_parser.add_argument(
+        "--key", type=Path, default=None, help="Optional local key file to sign the manifest."
+    )
 
     args = parser.parse_args(argv)
     if hasattr(args, "profile"):
@@ -107,7 +126,23 @@ def main(argv: Sequence[str] | None = None) -> int:
             for step in _manager().uninstall_plan(args.name):
                 print(step)
             return 0
-    except (CatalogError, ManifestError, ValueError) as exc:
+        if args.command == "build-bundle":
+            manifest_path = build_bundle(
+                wheels_dir=args.wheels,
+                out_path=args.out,
+                suite_version=args.suite_version,
+                source=args.source,
+                signature_key_path=args.key,
+            )
+            manifest = load_manifest(
+                manifest_path,
+                signature_key_path=args.key,
+            )
+            print(f"wrote {manifest_path}")
+            for distribution in sorted(manifest.packages):
+                print(f"  {distribution}")
+            return 0
+    except (CatalogError, ManifestError, BundleBuildError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
 

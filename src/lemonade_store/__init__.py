@@ -12,6 +12,7 @@ must agree on:
 No agents are implemented here. v0.1 is documentation + contracts only.
 """
 
+from lemonade_store.bundle import BundleBuildError, build_bundle
 from lemonade_store.config import (
     ConfigValidationError,
     StoreConfig,
@@ -44,9 +45,11 @@ from lemonade_store.package_manager import (
 
 __all__ = [
     "DEFAULT_PROFILE",
+    "BundleBuildError",
     "Catalog",
     "CatalogError",
     "PackageManager",
+    "build_bundle",
     "SCHEMA_VERSION",
     "Selection",
     "Actor",

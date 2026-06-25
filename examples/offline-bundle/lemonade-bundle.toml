@@ -1,0 +1,18 @@
+manifest_version = "lemonade.bundle.v1"
+suite_version = "0.1.0"
+source = "usb"
+signature = "unsigned-dev"
+
+[[packages]]
+name = "cashier"
+distribution = "lemonade-cashier"
+version = "0.1.0"
+artifact = "artifacts/lemonade_cashier-0.1.0-py3-none-any.whl"
+sha256 = "sha256:fc3246a84b978dd7b8579c380f948d5e98becab1cd893cb236d6249c2cec6953"
+
+[[packages]]
+name = "inventory"
+distribution = "lemonade-inventory"
+version = "0.1.0"
+artifact = "artifacts/lemonade_inventory-0.1.0-py3-none-any.whl"
+sha256 = "sha256:2bcad002cdbf071031a7fbaac215b99417f8c1874b08a037592ef6a7225ddbac"
