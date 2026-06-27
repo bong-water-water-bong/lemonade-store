@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import re
 import subprocess
 import sys
 import tomllib
@@ -129,7 +130,11 @@ class InstallState:
         state_path = Path(path)
         if not state_path.exists():
             return cls()
-        data = json.loads(state_path.read_text(encoding="utf-8"))
+        raw = state_path.read_text(encoding="utf-8")
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise InstallStateError(f"corrupt install state file {state_path}: {exc}") from exc
         if data.get("state_version") != STATE_VERSION:
             raise InstallStateError(
                 f"unsupported install state version {data.get('state_version')!r}"
@@ -475,7 +480,15 @@ def _safe_artifact_path(base: Path, artifact: str) -> Path:
         raise ManifestError("public URLs are not allowed in offline package manifests")
     if parsed.scheme and parsed.scheme != "file":
         raise ManifestError(f"unsupported artifact URL scheme {parsed.scheme!r}")
-    artifact_path = Path(parsed.path) if parsed.scheme == "file" else (base / artifact).resolve()
+    artifact_path: Path = (
+        Path(parsed.path) if parsed.scheme == "file" else (base / artifact).resolve()
+    )
+    # Guard against directory traversal: the resolved path must be
+    # under the base directory (or equal to it).
+    try:
+        artifact_path.relative_to(base.resolve())
+    except ValueError:
+        raise ManifestError(f"artifact {artifact!r} resolves outside the base directory") from None
     if not artifact_path.exists():
         raise ManifestError(f"artifact {artifact!r} does not exist at {artifact_path}")
     return artifact_path
@@ -498,20 +511,23 @@ def _verify_manifest_signature(path: Path, expected: str, key: bytes) -> None:
         raise ManifestError("manifest signature must use the form 'hmac-sha256:<hex-digest>'")
     data = path.read_text(encoding="utf-8")
     unsigned = _replace_signature_value(data, "")
-    actual = sign_manifest_payload(unsigned.encode(), key)
+    # Normalize the payload the same way ``build_bundle`` does when
+    # signing: strip trailing newline so the hash is deterministic.
+    payload = "\n".join(unsigned.splitlines()).encode()
+    actual = sign_manifest_payload(payload, key)
     if not hmac.compare_digest(actual, expected):
         raise ManifestError("manifest signature mismatch")
 
 
 def _replace_signature_value(data: str, value: str) -> str:
-    lines = []
-    replaced = False
-    for line in data.splitlines():
-        if line.startswith("signature = ") and not replaced:
-            lines.append(f'signature = "{value}"')
-            replaced = True
-        else:
-            lines.append(line)
-    if not replaced:
+    """Replace the top-level ``signature`` value in a TOML manifest.
+
+    Uses a regex anchored at the start of a line to avoid matching
+    ``signature`` keys inside nested tables or string values.
+    """
+    # Match ``signature = "..."`` at the start of a line (top-level only).
+    pattern = re.compile(r'^(signature\s*=\s*)"[^"]*"', re.MULTILINE)
+    result, count = pattern.subn(rf'\g<1>"{value}"', data, count=1)
+    if count == 0:
         raise ManifestError("manifest missing signature field")
-    return "\n".join(lines)
+    return result

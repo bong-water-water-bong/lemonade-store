@@ -12,6 +12,7 @@ Kept stdlib-only to honor the ``lemonade-store`` no-third-party-deps rule.
 from __future__ import annotations
 
 import hashlib
+import os
 from pathlib import Path
 
 from lemonade_store.package_manager import (
@@ -154,8 +155,14 @@ def _relative_artifact(manifest_path: Path, wheel: Path) -> str:
     try:
         return wheel_abs.relative_to(manifest_dir).as_posix()
     except ValueError:
-        # Wheel lives outside the manifest dir; use an absolute path.
-        return wheel_abs.as_posix()
+        # Wheel lives outside the manifest dir. Use ``..``-relative
+        # path so the manifest remains portable across machines.
+        try:
+            return os.path.relpath(wheel_abs, manifest_dir)
+        except ValueError:
+            # Fallback for cross-filesystem paths (e.g., Windows vs. Linux).
+            # Absolute paths are non-portable but unavoidable here.
+            return wheel_abs.as_posix()
 
 
 def _render_manifest(

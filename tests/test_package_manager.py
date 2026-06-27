@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 
 import pytest
@@ -5,6 +7,7 @@ import pytest
 from lemonade_store.package_manager import (
     CatalogError,
     InstallState,
+    InstallStateError,
     ManifestError,
     PackageManager,
     build_catalog,
@@ -256,3 +259,19 @@ def test_status_lists_installed_packages_and_safe_uninstall_plan(tmp_path: Path)
 
     manager.enable("cashier")
     assert InstallState.load(state_path).installed["cashier"].enabled is True
+
+
+def test_install_state_rejects_corrupt_json(tmp_path: Path) -> None:
+    state_path = tmp_path / "state.json"
+    state_path.write_text("{corrupt json", encoding="utf-8")
+    with pytest.raises(InstallStateError, match="corrupt install state"):
+        InstallState.load(state_path)
+
+
+def test_disable_unknown_package_raises_error(tmp_path: Path) -> None:
+    manager = PackageManager(state_path=tmp_path / "state.json", runner=lambda cmd: None)
+    with pytest.raises(InstallStateError, match="not installed"):
+        manager.disable("nonexistent")
+
+    with pytest.raises(InstallStateError, match="not installed"):
+        manager.enable("nonexistent")

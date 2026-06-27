@@ -15,6 +15,7 @@ import pytest
 from lemonade_store.config import (
     ConfigValidationError,
     StoreConfig,
+    known_departments,
     load_store_config,
 )
 
@@ -23,6 +24,11 @@ TIE_DYE_DIR = REPO_ROOT / "examples" / "tie-dye-farms"
 
 
 class TestExampleConfigLoads:
+    def test_known_departments_matches_registry(self) -> None:
+        from lemonade_store.departments import KNOWN_DEPARTMENTS
+
+        assert sorted(known_departments()) == sorted(KNOWN_DEPARTMENTS)
+
     def test_tie_dye_farms_example_loads(self) -> None:
         cfg = load_store_config(TIE_DYE_DIR / "store.toml")
         assert isinstance(cfg, StoreConfig)
@@ -141,3 +147,52 @@ class TestKnownDepartmentsResolved:
         from lemonade_store.departments import KNOWN_DEPARTMENTS
 
         assert set(names) == KNOWN_DEPARTMENTS
+
+
+class TestCategoriesValidation:
+    def test_categories_cannot_be_empty(self, tmp_path: Path) -> None:
+        p = tmp_path / "store.toml"
+        p.write_text(
+            "\n".join(
+                [
+                    'store_id = "demo"',
+                    'business_name = "Demo"',
+                    'suite = "lemonade-store"',
+                    'cashier_repo = "lemonade-cashier"',
+                    'website_repo = "demo-site"',
+                    'currency = "USD"',
+                    'payment_core = "cash_only"',
+                    'barter = "allowed_with_approval"',
+                    'cloudflare = "website_only"',
+                    "categories = []",
+                    "",
+                ]
+            )
+        )
+        with pytest.raises(ConfigValidationError) as exc:
+            load_store_config(p)
+        assert "at least one" in str(exc.value)
+
+    def test_categories_cannot_exceed_max(self, tmp_path: Path) -> None:
+        p = tmp_path / "store.toml"
+        many_cats = [f"cat{i}" for i in range(101)]
+        p.write_text(
+            "\n".join(
+                [
+                    'store_id = "demo"',
+                    'business_name = "Demo"',
+                    'suite = "lemonade-store"',
+                    'cashier_repo = "lemonade-cashier"',
+                    'website_repo = "demo-site"',
+                    'currency = "USD"',
+                    'payment_core = "cash_only"',
+                    'barter = "allowed_with_approval"',
+                    'cloudflare = "website_only"',
+                    f"categories = {many_cats}",
+                    "",
+                ]
+            )
+        )
+        with pytest.raises(ConfigValidationError) as exc:
+            load_store_config(p)
+        assert "at most 100" in str(exc.value)

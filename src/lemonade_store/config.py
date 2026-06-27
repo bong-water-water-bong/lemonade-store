@@ -120,6 +120,10 @@ def load_store_config(path: str | Path) -> StoreConfig:
     categories = data["categories"]
     if not isinstance(categories, list) or not all(isinstance(c, str) for c in categories):
         raise ConfigValidationError("categories must be a list of strings")
+    if len(categories) < 1:
+        raise ConfigValidationError("categories must have at least one entry")
+    if len(categories) > 100:
+        raise ConfigValidationError("categories must have at most 100 entries")
 
     return StoreConfig(
         store_id=data["store_id"],

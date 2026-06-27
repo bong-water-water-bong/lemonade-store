@@ -29,6 +29,13 @@ nav:
   - Tie Dye Farms: TIE_DYE_FARMS.md
   - Cloudflare website: CLOUDFLARE_WEBSITE.md
   - Build order: BUILD_ORDER.md
+  - Wiki:
+      - Overview: wiki/README.md
+      - Architecture: wiki/architecture.md
+      - Departments: wiki/departments.md
+      - Conventions: wiki/conventions.md
+      - Runbook: wiki/runbook.md
+      - Agents: wiki/agents.md
 
 markdown_extensions:
   - admonition

@@ -362,6 +362,28 @@ _DEPARTMENTS: tuple[Department, ...] = (
 )
 
 
+def _validate_cross_department_consumes() -> None:
+    """Validate every consumed event type is emitted by some department.
+
+    This catches typos and forgotten event registrations that would
+    otherwise silently break cross-department data flow. Runs once
+    at module load time.
+    """
+    known_emits: set[str] = set()
+    for dept in _DEPARTMENTS:
+        known_emits.update(dept.emits)
+    for dept in _DEPARTMENTS:
+        for consumed_type in dept.consumes:
+            if consumed_type not in known_emits:
+                raise DepartmentValidationError(
+                    f"department {dept.name!r} consumes {consumed_type!r}, "
+                    f"which is not emitted by any registered department"
+                )
+
+
+_validate_cross_department_consumes()
+
+
 def registry() -> dict[str, Department]:
     """Return the v0.1 department registry as `{name: Department}`.
 

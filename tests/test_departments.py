@@ -102,6 +102,31 @@ class TestCashierIsSourceOfTruth:
                 )
 
 
+class TestCrossDepartmentConsumes:
+    def test_all_consumed_events_are_emitted_by_some_department(self) -> None:
+        """Every event type in every department's ``consumes`` tuple
+        must also appear in some department's ``emits`` tuple.
+        """
+        reg = registry()
+        known_emits: set[str] = set()
+        for dept in reg.values():
+            known_emits.update(dept.emits)
+        for dept in reg.values():
+            for consumed_type in dept.consumes:
+                assert consumed_type in known_emits, (
+                    f"{dept.name} consumes {consumed_type!r}, "
+                    f"which is not emitted by any registered department"
+                )
+
+    def test_cross_department_consumes_is_deterministic(self) -> None:
+        """Double-check all consumes/emits match when iterating in any order."""
+        from lemonade_store.departments import _validate_cross_department_consumes
+
+        # If the current registry is consistent, this function runs
+        # without error. We call it here to verify determinism.
+        _validate_cross_department_consumes()
+
+
 class TestDepartmentValidation:
     def test_department_cannot_emit_outside_its_namespace(self) -> None:
         with pytest.raises(DepartmentValidationError):

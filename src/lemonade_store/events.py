@@ -41,9 +41,12 @@ _META_NAMESPACES: frozenset[str] = frozenset({"store", "audit"})
 # ISO-8601 with optional fractional seconds and mandatory timezone.
 # Accepts Z, ±HH:MM, or ±HHMM offsets. Constrained to UTC-aware
 # timestamps only (no naive datetimes cross the envelope).
+# Timezone hour is validated to 00-23 (offsets beyond ±23:59 are
+# invalid in practice even if ISO-8601 theoretically allows up to
+# ±25:59 for historical leap-seconds).
 _ISO8601_RE = re.compile(
     r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?"
-    r"(Z|[+-]\d{2}:\d{2}|[+-]\d{4})$"
+    r"(Z|[+-](?:0[0-9]|1[0-9]|2[0-3]):[0-5]\d|[+-](?:0[0-9]|1[0-9]|2[0-3])[0-5]\d)$"
 )
 
 _REQUIRED_FIELDS: tuple[str, ...] = (
@@ -76,7 +79,7 @@ class Actor:
     id: str
 
 
-@dataclass
+@dataclass(frozen=True)
 class Event:
     schema_version: str
     event_id: str
@@ -85,10 +88,10 @@ class Event:
     department: str
     type: str
     source: str
-    actor: Actor
+    actor: Actor = field(compare=False)
     requires_approval: bool = False
     approved_by: str | None = None
-    payload: dict[str, Any] = field(default_factory=dict)
+    payload: dict[str, Any] = field(default_factory=dict, compare=False)
 
     def __post_init__(self) -> None:
         _validate_event(self)

@@ -43,7 +43,10 @@ type:
 	$(PYTHON) -m mypy
 
 fmt:
-	$(PYTHON) -m ruff format src tests
+	$(PYTHON) -m ruff format src tests && $(PYTHON) -m ruff format --check src tests
+
+fmt-check:
+	$(PYTHON) -m ruff format --check src tests
 
 docs:
 	$(PYTHON) -m mkdocs build --strict

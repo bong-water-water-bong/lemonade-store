@@ -157,6 +157,18 @@ class TestEventValueConstraints:
             load_event(payload)
 
 
+class TestEventIsFrozen:
+    def test_event_cannot_be_mutated_after_construction(self) -> None:
+        event = load_event(_valid_payload())
+        with pytest.raises(AttributeError):
+            event.store_id = "different-store"  # type: ignore[misc]
+
+    def test_actor_cannot_be_mutated_after_construction(self) -> None:
+        event = load_event(_valid_payload())
+        with pytest.raises(AttributeError):
+            event.actor.id = "different-id"  # type: ignore[misc]
+
+
 class TestEventTypeValidation:
     """Loader fails fast on type violations with `EventValidationError`."""
 
@@ -308,6 +320,9 @@ class TestTimestampValidation:
             "yesterday afternoon",  # not a timestamp
             "18:30:00",  # time only
             "2026/05/19T18:30:00Z",  # wrong separator
+            "2026-05-19T18:30:00+25:00",  # invalid offset (hour > 23)
+            "2026-05-19T18:30:00-99:00",  # invalid offset (hour > 23)
+            "2026-05-19T18:30:00+00:99",  # invalid offset (minute > 59)
         ],
     )
     def test_invalid_timestamp_rejected(self, bad_ts: str) -> None:

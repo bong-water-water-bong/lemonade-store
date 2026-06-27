@@ -40,7 +40,7 @@ the rest are the operator/admin side (verify, install, and manage from that bund
 ## What is in the complete package now
 
 - `lemonade-store` owns the package-manager engine, CLI, catalog, profiles, offline **bundle building**, bootstrap-wheel manifest support (`lemonade-store`/`lemonade-admin`), manifest validation, artifact hashing, install state, status, enable/disable, and safe uninstall planning.
-- A complete, runnable example bundle lives in [`examples/offline-bundle/`](../../examples/offline-bundle/README.md).
+- A complete, runnable example bundle lives in the [offline-bundle example](https://github.com/bong-water-water-bong/lemonade-store/tree/main/examples/offline-bundle).
 - `lemonade-admin` exists as the dedicated internal-only admin/help-center package and uses `lemonade-store` package-manager semantics.
 - Full operator/admin/developer docs are included under `docs/package-manager/`.
 

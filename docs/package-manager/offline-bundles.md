@@ -53,7 +53,7 @@ Add `--key /path/to/bundle.key` to sign the manifest with a local maintainer key
 distributions plus the bootstrap `lemonade-store` and `lemonade-admin` wheels.
 It rejects unknown distributions so typos or unrelated artifacts do not silently
 enter the offline release. A complete, self-contained example lives in
-[`examples/offline-bundle/`](../../examples/offline-bundle/README.md).
+the [offline-bundle example](https://github.com/bong-water-water-bong/lemonade-store/tree/main/examples/offline-bundle).
 
 ## Installing a signed bundle
 
